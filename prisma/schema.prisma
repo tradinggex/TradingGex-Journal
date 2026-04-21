@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  name         String?
+  passwordHash String?        // null for OAuth-only users
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  trades         Trade[]
+  journalEntries JournalEntry[]
+  oauthAccounts  OAuthAccount[]
+}
+
+model OAuthAccount {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider          String   // "google"
+  providerAccountId String
+  createdAt         DateTime @default(now())
+
+  @@unique([provider, providerAccountId])
+}
+
+model Instrument {
+  id           String   @id @default(cuid())
+  symbol       String   @unique
+  name         String
+  market       String   // CRYPTO | CME | FOREX | GENERIC
+  tickSize     Float    @default(1)
+  tickValue    Float    @default(1)
+  currency     String   @default("USD")
+  exchange     String?
+  contractSize Float    @default(1)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  trades Trade[]
+}
+
+model Setup {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  color       String   @default("#6366f1")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  trades Trade[]
+}
+
+model Tag {
+  id     String     @id @default(cuid())
+  name   String     @unique
+  color  String     @default("#6366f1")
+  trades TradeTag[]
+}
+
+model Trade {
+  id           String   @id @default(cuid())
+
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  instrumentId String
+  instrument   Instrument @relation(fields: [instrumentId], references: [id])
+  setupId      String?
+  setup        Setup?     @relation(fields: [setupId], references: [id])
+
+  direction    String   // LONG | SHORT
+  size         Float    @default(1)
+  status       String   @default("CLOSED") // OPEN | CLOSED | CANCELLED
+
+  entryPrice   Float
+  exitPrice    Float?
+  stopLoss     Float?
+  takeProfit   Float?
+
+  entryAt      DateTime
+  exitAt       DateTime?
+
+  grossPnl     Float?
+  fees         Float    @default(0)
+  netPnl       Float?
+
+  riskAmount   Float?
+  rMultiple    Float?
+  plannedR     Float?
+
+  quality      Int?     // 1-5 stars
+  emotion      String?  // FOCUSED | CALM | NEUTRAL | ANXIOUS | FEARFUL | GREEDY | REVENGE | FOMO
+
+  notes          String?   @db.Text
+  mistakes       String?   @db.Text
+  lessonsLearned String?   @db.Text
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  screenshots  Screenshot[]
+  tags         TradeTag[]
+}
+
+model TradeTag {
+  tradeId String
+  tagId   String
+  trade   Trade  @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([tradeId, tagId])
+}
+
+model Screenshot {
+  id             String        @id @default(cuid())
+  tradeId        String?
+  trade          Trade?        @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  journalEntryId String?
+  journalEntry   JournalEntry? @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  url            String
+  label          String?
+  createdAt      DateTime      @default(now())
+}
+
+model JournalEntry {
+  id               String   @id @default(cuid())
+
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date             String   // YYYY-MM-DD
+  sessionSummary   String?  @db.Text
+  emotionalState   String?
+  disciplineScore  Int?
+  followedRules    Boolean?
+  marketCondition  String?
+  lessonsLearned   String?  @db.Text
+  improvements     String?  @db.Text
+  gratitude        String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  screenshots      Screenshot[]
+
+  @@unique([userId, date])
+}
