@@ -2,7 +2,14 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const createPrismaClient = () => {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+  const connectionString = process.env.DATABASE_URL!;
+  const isRemote =
+    !connectionString.includes("localhost") &&
+    !connectionString.includes("127.0.0.1");
+  const adapter = new PrismaPg({
+    connectionString,
+    ...(isRemote && { ssl: { rejectUnauthorized: false } }),
+  });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new PrismaClient({ adapter } as any);
 };
