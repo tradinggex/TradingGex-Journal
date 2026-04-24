@@ -1,6 +1,8 @@
 import { getDictionary } from "@/lib/i18n";
 import { I18nProvider } from "@/lib/i18n/context";
 
+export const dynamic = "force-dynamic";
+
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const dict = await getDictionary();
   return (

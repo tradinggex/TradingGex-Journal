@@ -42,17 +42,23 @@ export async function register(state: AuthState, formData: FormData): Promise<Au
 
   const { name, email, password } = result.data;
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return { errors: { email: ["Este email ya está registrado"] } };
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return { errors: { email: ["Este email ya está registrado"] } };
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await prisma.user.create({
+      data: { name, email, passwordHash },
+    });
+
+    await createSession(user.id, user.email, user.name);
+  } catch (err) {
+    console.error("[register]", err);
+    return { message: "Error al conectar con la base de datos. Intenta de nuevo." };
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
-  const user = await prisma.user.create({
-    data: { name, email, passwordHash },
-  });
-
-  await createSession(user.id, user.email, user.name);
   redirect("/");
 }
 
@@ -68,17 +74,23 @@ export async function login(state: AuthState, formData: FormData): Promise<AuthS
 
   const { email, password } = result.data;
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !user.passwordHash) {
-    return { message: "Email o contraseña incorrectos" };
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !user.passwordHash) {
+      return { message: "Email o contraseña incorrectos" };
+    }
+
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) {
+      return { message: "Email o contraseña incorrectos" };
+    }
+
+    await createSession(user.id, user.email, user.name);
+  } catch (err) {
+    console.error("[login]", err);
+    return { message: "Error al conectar con la base de datos. Intenta de nuevo." };
   }
 
-  const valid = await bcrypt.compare(password, user.passwordHash);
-  if (!valid) {
-    return { message: "Email o contraseña incorrectos" };
-  }
-
-  await createSession(user.id, user.email, user.name);
   redirect("/");
 }
 
