@@ -45,3 +45,4 @@ dev.db
 
 # Local Netlify folder
 .netlify
+deno.lock
