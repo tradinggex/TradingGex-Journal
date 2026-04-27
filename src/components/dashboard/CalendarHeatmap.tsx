@@ -61,11 +61,11 @@ export function CalendarHeatmap({ dailyPnl }: CalendarHeatmapProps) {
   return (
     <div>
       {/* Header: month label + stats */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
         <span className="text-base font-bold text-foreground capitalize">
           {monthLabel}
         </span>
-        <div className="flex items-center gap-5 text-sm">
+        <div className="flex items-center gap-4 text-sm">
           <span className="text-emerald-400">
             <span className="text-fg-subtle mr-1">win</span>
             {winDays}d
@@ -82,7 +82,7 @@ export function CalendarHeatmap({ dailyPnl }: CalendarHeatmapProps) {
       </div>
 
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 gap-2 mb-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
         {WEEKDAYS.map((d) => (
           <div
             key={d}
@@ -94,10 +94,10 @@ export function CalendarHeatmap({ dailyPnl }: CalendarHeatmapProps) {
       </div>
 
       {/* Day cells */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {cells.map((day, idx) => {
           if (day === null) {
-            return <div key={`empty-${idx}`} className="h-16 rounded-xl" />;
+            return <div key={`empty-${idx}`} className="h-10 sm:h-14 md:h-16 rounded-lg sm:rounded-xl" />;
           }
 
           const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -114,15 +114,15 @@ export function CalendarHeatmap({ dailyPnl }: CalendarHeatmapProps) {
             <div
               key={dateStr}
               title={hasTrade ? `${dateStr}: ${formatCurrency(pnl)}` : dateStr}
-              className={`h-16 rounded-xl flex flex-col items-center justify-center gap-1 cursor-default transition-opacity hover:opacity-75 ${cellStyle}`}
+              className={`h-10 sm:h-14 md:h-16 rounded-lg sm:rounded-xl flex flex-col items-center justify-center gap-0.5 cursor-default transition-opacity hover:opacity-75 ${cellStyle}`}
             >
               <span
-                className={`text-sm font-bold leading-none ${isToday && !hasTrade ? "text-purple-400" : ""}`}
+                className={`text-xs sm:text-sm font-bold leading-none ${isToday && !hasTrade ? "text-purple-400" : ""}`}
               >
                 {day}
               </span>
               {hasTrade && (
-                <span className="text-xs font-mono leading-none font-semibold">
+                <span className="hidden sm:block text-[10px] sm:text-xs font-mono leading-none font-semibold">
                   {pnl > 0 ? "+" : ""}
                   {Math.abs(pnl) >= 1000
                     ? `${(pnl / 1000).toFixed(1)}k`

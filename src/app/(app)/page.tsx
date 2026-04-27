@@ -110,7 +110,7 @@ export default async function DashboardPage() {
 
       {/* Last 10 Trades + Setup Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 card overflow-hidden">
+        <div className="lg:col-span-2 card">
           <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             <span className="text-sm font-semibold text-foreground">{d.lastTrades}</span>
             <Link
@@ -121,7 +121,7 @@ export default async function DashboardPage() {
             </Link>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[480px]">
               <thead>
                 <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                   {[d.cols.date, d.cols.instrument, d.cols.dir, d.cols.pnl, d.cols.r, d.cols.setup].map((h) => (

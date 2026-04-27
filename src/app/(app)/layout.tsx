@@ -11,7 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <I18nProvider dict={dict}>
       <TopNav userEmail={user.email} userName={user.name ?? undefined} />
       <main className="pt-16 min-h-screen">
-        <div className="max-w-[1440px] mx-auto px-6 py-6">
+        <div className="max-w-[1440px] mx-auto px-4 py-4 sm:px-6 sm:py-6">
           {children}
         </div>
       </main>

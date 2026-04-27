@@ -154,7 +154,7 @@ export default async function AnalyticsPage() {
       </div>
 
       {/* Setup Breakdown */}
-      <div className="card overflow-hidden">
+      <div className="card">
         <div className="px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
           <div className="text-sm font-semibold text-foreground">{d.bySetup}</div>
         </div>

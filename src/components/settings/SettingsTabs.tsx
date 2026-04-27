@@ -257,8 +257,8 @@ function InstrumentsTab({ instruments }: { instruments: Instrument[] }) {
         </form>
       )}
 
-      <div className="card overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="card overflow-hidden overflow-x-auto">
+        <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="border-b border-[var(--border)]">
               {[
@@ -504,7 +504,7 @@ function TagsTab({ tags }: { tags: Tag[] }) {
     <div className="space-y-4">
       <form
         onSubmit={handleSubmit}
-        className="flex items-end gap-3 bg-surface2 border border-[var(--border)] rounded-xl p-4"
+        className="flex flex-wrap items-end gap-3 bg-surface2 border border-[var(--border)] rounded-xl p-4"
       >
         <div className="flex-1">
           <label className="text-xs text-slate-500 mb-1 block">{t("settings.tags.newLabel")}</label>
@@ -629,7 +629,8 @@ export function SettingsTabs({ instruments, setups, tags }: SettingsTabsProps) {
   return (
     <div className="space-y-4">
       {/* Tab Bar */}
-      <div className="flex items-center gap-1 bg-surface border border-[var(--border)] rounded-xl p-1 w-fit">
+      <div className="overflow-x-auto pb-0.5">
+      <div className="flex items-center gap-1 bg-surface border border-[var(--border)] rounded-xl p-1 w-fit min-w-full sm:min-w-0">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -643,6 +644,7 @@ export function SettingsTabs({ instruments, setups, tags }: SettingsTabsProps) {
             {tab.label}
           </button>
         ))}
+      </div>
       </div>
 
       {/* Tab Content */}

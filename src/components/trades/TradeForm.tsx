@@ -195,12 +195,12 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
   const sectionTitle = "text-xs text-fg-subtle uppercase tracking-wider font-mono mb-4 flex items-center gap-2 after:flex-1 after:h-px after:bg-surface3";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 max-w-4xl">
       {/* ── Instrument & Direction ── */}
       <div className="card p-5 space-y-4">
         <div className={sectionTitle}>{t("trades.form.instrumentDir")}</div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="sm:col-span-2">
             <label className={labelCls}>{t("trades.form.instrument")}</label>
             <select
               className={inputCls}
@@ -261,7 +261,7 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className={labelCls}>{t("trades.form.setup")}</label>
             <select
@@ -315,7 +315,7 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
       {/* ── Prices ── */}
       <div className="card p-5 space-y-4">
         <div className={sectionTitle}>{t("trades.form.prices")}</div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className={labelCls}>{t("trades.form.entryPrice")}</label>
             <input
@@ -378,7 +378,7 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
             {t("trades.form.autoCalc")}
           </label>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className={labelCls}>{t("trades.form.grossPnl")}</label>
             <input
@@ -512,7 +512,7 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className={labelCls}>{t("trades.form.notes")}</label>
             <textarea

@@ -38,14 +38,14 @@ export default async function TradeDetailPage({ params }: PageProps) {
   return (
     <div className="space-y-5 max-w-5xl">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <Link href="/trades" className="text-xs text-fg-subtle hover:text-fg-muted font-mono transition-colors">
               {d.back}
             </Link>
           </div>
-          <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-3">
+          <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight flex flex-wrap items-center gap-2 sm:gap-3">
             {trade.instrument.symbol}
             <span
               className={`text-sm px-3 py-1 rounded-lg font-bold ${
@@ -57,7 +57,7 @@ export default async function TradeDetailPage({ params }: PageProps) {
               {trade.direction}
             </span>
           </h1>
-          <p className="text-sm text-fg-subtle font-mono mt-0.5">
+          <p className="text-xs sm:text-sm text-fg-subtle font-mono mt-0.5">
             {formatDateTime(trade.entryAt)}
             {trade.exitAt && ` → ${formatDateTime(trade.exitAt)}`}
           </p>

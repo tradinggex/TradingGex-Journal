@@ -66,7 +66,7 @@ export function TradeTable({ trades }: TradeTableProps) {
   return (
     <div className="card overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[700px]">
           <thead>
             <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
               {[
@@ -173,16 +173,16 @@ export function TradeTable({ trades }: TradeTableProps) {
                     <Stars count={trade.quality} />
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <Link
                         href={`/trades/${trade.id}`}
-                        className="text-[10px] text-purple-500 hover:text-purple-400 font-mono border border-purple-500/20 hover:border-purple-500/40 px-2 py-1 rounded transition-colors"
+                        className="text-[10px] text-purple-500 hover:text-purple-400 font-mono border border-purple-500/20 hover:border-purple-500/40 px-2 py-1 rounded transition-colors whitespace-nowrap"
                       >
                         {t("trades.cols.view")}
                       </Link>
                       <Link
                         href={`/trades/${trade.id}/edit`}
-                        className="text-[10px] text-slate-400 hover:text-slate-200 font-mono border border-white/10 hover:border-white/20 px-2 py-1 rounded transition-colors"
+                        className="text-[10px] text-slate-400 hover:text-slate-200 font-mono border border-white/10 hover:border-white/20 px-2 py-1 rounded transition-colors whitespace-nowrap"
                       >
                         {t("trades.cols.edit")}
                       </Link>

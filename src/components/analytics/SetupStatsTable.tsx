@@ -28,7 +28,7 @@ export function SetupStatsTable({ data }: { data: SetupStat[] }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full text-sm min-w-[480px]">
         <thead>
           <tr className="border-b border-[var(--border)]">
             {[
