@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { supabase, SCREENSHOTS_BUCKET } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
@@ -31,17 +30,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: uploadError.message }, { status: 500 });
     }
 
-    // Use the SDK to get the canonical public URL
     const { data: { publicUrl } } = supabase.storage
       .from(SCREENSHOTS_BUCKET)
       .getPublicUrl(storagePath);
 
-    const screenshot = await prisma.screenshot.create({
-      data: {
+    const id = crypto.randomUUID();
+    const { data: screenshot, error } = await supabase
+      .from("Screenshot")
+      .insert({
+        id,
         url: publicUrl,
         ...(tradeId ? { tradeId } : { journalEntryId: journalEntryId! }),
-      },
-    });
+      })
+      .select("id, url")
+      .single();
+
+    if (error || !screenshot) {
+      console.error("Screenshot DB error:", error);
+      return NextResponse.json({ error: "Failed to save screenshot" }, { status: 500 });
+    }
 
     return NextResponse.json({ id: screenshot.id, url: publicUrl });
   } catch (err) {

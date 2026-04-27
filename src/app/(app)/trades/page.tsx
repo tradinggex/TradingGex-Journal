@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { getDictionary } from "@/lib/i18n";
 import { TradeTable } from "@/components/trades/TradeTable";
@@ -33,28 +33,37 @@ export default async function TradesPage({ searchParams }: PageProps) {
   const status = params.status ?? "";
   const page = Math.max(1, parseInt(params.page ?? "1", 10));
 
-  const where: Record<string, unknown> = { userId: user.userId };
-  if (direction) where.direction = direction;
-  if (instrumentId) where.instrumentId = instrumentId;
-  if (setupId) where.setupId = setupId;
-  if (status) where.status = status;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function applyFilters(q: any) {
+    let query = q.eq("userId", user.userId);
+    if (direction) query = query.eq("direction", direction);
+    if (instrumentId) query = query.eq("instrumentId", instrumentId);
+    if (setupId) query = query.eq("setupId", setupId);
+    if (status) query = query.eq("status", status);
+    return query;
+  }
 
-  const [trades, total, instruments, setups] = await Promise.all([
-    prisma.trade.findMany({
-      where,
-      include: {
-        instrument: true,
-        setup: true,
-        tags: { include: { tag: true } },
-      },
-      orderBy: { entryAt: "desc" },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    }),
-    prisma.trade.count({ where }),
-    prisma.instrument.findMany({ where: { isActive: true }, orderBy: { symbol: "asc" } }),
-    prisma.setup.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
+  const skip = (page - 1) * PAGE_SIZE;
+
+  const [tradesRes, countRes, instrumentsRes, setupsRes] = await Promise.all([
+    applyFilters(
+      supabase
+        .from("Trade")
+        .select("*, instrument:Instrument(*), setup:Setup(*), tags:TradeTag(*, tag:Tag(*))")
+    )
+      .order("entryAt", { ascending: false })
+      .range(skip, skip + PAGE_SIZE - 1),
+    applyFilters(
+      supabase.from("Trade").select("id", { count: "exact", head: true })
+    ),
+    supabase.from("Instrument").select("*").eq("isActive", true).order("symbol"),
+    supabase.from("Setup").select("*").eq("isActive", true).order("name"),
   ]);
+
+  const trades = tradesRes.data ?? [];
+  const total = countRes.count ?? 0;
+  const instruments = instrumentsRes.data ?? [];
+  const setups = setupsRes.data ?? [];
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 

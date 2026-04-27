@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { getDictionary } from "@/lib/i18n";
 import { notFound } from "next/navigation";
@@ -16,7 +16,12 @@ export default async function EditJournalPage({ params }: PageProps) {
   const { id } = await params;
   const dict = await getDictionary();
 
-  const entry = await prisma.journalEntry.findFirst({ where: { id, userId: user.userId } });
+  const { data: entry } = await supabase
+    .from("JournalEntry")
+    .select("*")
+    .eq("id", id)
+    .eq("userId", user.userId)
+    .maybeSingle();
   if (!entry) notFound();
 
   return (

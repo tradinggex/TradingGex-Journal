@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { getDictionary } from "@/lib/i18n";
 import { notFound } from "next/navigation";
@@ -20,10 +20,13 @@ export default async function JournalEntryPage({ params }: PageProps) {
   const dict = await getDictionary();
   const d = dict.journal.detail;
 
-  const entry = await prisma.journalEntry.findFirst({
-    where: { id, userId: user.userId },
-    include: { screenshots: { orderBy: { createdAt: "asc" } } },
-  });
+  const { data: entry } = await supabase
+    .from("JournalEntry")
+    .select("*, screenshots:Screenshot(*)")
+    .eq("id", id)
+    .eq("userId", user.userId)
+    .order("createdAt", { referencedTable: "screenshots", ascending: true })
+    .maybeSingle();
   if (!entry) notFound();
 
   const emotion = EMOTIONS.find((e) => e.value === entry.emotionalState);

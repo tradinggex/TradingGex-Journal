@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { getDictionary } from "@/lib/i18n";
 import { notFound } from "next/navigation";
@@ -20,15 +20,13 @@ export default async function TradeDetailPage({ params }: PageProps) {
   const dict = await getDictionary();
   const d = dict.trades.detail;
 
-  const trade = await prisma.trade.findFirst({
-    where: { id, userId: user.userId },
-    include: {
-      instrument: true,
-      setup: true,
-      tags: { include: { tag: true } },
-      screenshots: { orderBy: { createdAt: "asc" } },
-    },
-  });
+  const { data: trade } = await supabase
+    .from("Trade")
+    .select("*, instrument:Instrument(*), setup:Setup(*), tags:TradeTag(*, tag:Tag(*)), screenshots:Screenshot(*)")
+    .eq("id", id)
+    .eq("userId", user.userId)
+    .order("createdAt", { referencedTable: "screenshots", ascending: true })
+    .maybeSingle();
 
   if (!trade) notFound();
 
@@ -173,7 +171,8 @@ export default async function TradeDetailPage({ params }: PageProps) {
             <div className="pt-2 border-t border-[var(--border)]">
               <div className="text-xs text-fg-subtle font-mono mb-2">{d.tags}</div>
               <div className="flex flex-wrap gap-1.5">
-                {trade.tags.map(({ tag }) => (
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {trade.tags.map(({ tag }: any) => (
                   <span
                     key={tag.id}
                     className="text-[11px] px-2 py-0.5 rounded-full font-semibold"

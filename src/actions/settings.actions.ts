@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { instrumentSchema, setupSchema } from "@/lib/validations/settings.schema";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
@@ -23,27 +23,33 @@ export async function setLocale(locale: Locale) {
 export async function createInstrument(data: unknown) {
   const parsed = instrumentSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
-  const instrument = await prisma.instrument.create({ data: parsed.data });
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("Instrument").insert({ id, ...parsed.data });
+  if (error) return { error: "Error al crear instrumento" };
   revalidatePath("/settings");
-  return { success: true, id: instrument.id };
+  return { success: true, id };
 }
 
 export async function updateInstrument(id: string, data: unknown) {
   const parsed = instrumentSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
-  await prisma.instrument.update({ where: { id }, data: parsed.data });
+  const { error } = await supabase
+    .from("Instrument")
+    .update({ ...parsed.data, updatedAt: new Date().toISOString() })
+    .eq("id", id);
+  if (error) return { error: "Error al actualizar instrumento" };
   revalidatePath("/settings");
   return { success: true };
 }
 
 export async function deleteInstrument(id: string) {
-  await prisma.instrument.delete({ where: { id } });
+  await supabase.from("Instrument").delete().eq("id", id);
   revalidatePath("/settings");
   return { success: true };
 }
 
 export async function toggleInstrument(id: string, isActive: boolean) {
-  await prisma.instrument.update({ where: { id }, data: { isActive } });
+  await supabase.from("Instrument").update({ isActive, updatedAt: new Date().toISOString() }).eq("id", id);
   revalidatePath("/settings");
   return { success: true };
 }
@@ -52,34 +58,42 @@ export async function toggleInstrument(id: string, isActive: boolean) {
 export async function createSetup(data: unknown) {
   const parsed = setupSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
-  const setup = await prisma.setup.create({ data: parsed.data });
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("Setup").insert({ id, ...parsed.data });
+  if (error) return { error: "Error al crear setup" };
   revalidatePath("/settings");
-  return { success: true, id: setup.id };
+  return { success: true, id };
 }
 
 export async function updateSetup(id: string, data: unknown) {
   const parsed = setupSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
-  await prisma.setup.update({ where: { id }, data: parsed.data });
+  const { error } = await supabase
+    .from("Setup")
+    .update({ ...parsed.data, updatedAt: new Date().toISOString() })
+    .eq("id", id);
+  if (error) return { error: "Error al actualizar setup" };
   revalidatePath("/settings");
   return { success: true };
 }
 
 export async function deleteSetup(id: string) {
-  await prisma.setup.delete({ where: { id } });
+  await supabase.from("Setup").delete().eq("id", id);
   revalidatePath("/settings");
   return { success: true };
 }
 
 // --- Tags ---
 export async function createTag(name: string, color: string) {
-  const tag = await prisma.tag.create({ data: { name, color } });
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("Tag").insert({ id, name, color });
+  if (error) return { error: "Error al crear etiqueta" };
   revalidatePath("/settings");
-  return { success: true, id: tag.id };
+  return { success: true, id };
 }
 
 export async function deleteTag(id: string) {
-  await prisma.tag.delete({ where: { id } });
+  await supabase.from("Tag").delete().eq("id", id);
   revalidatePath("/settings");
   return { success: true };
 }

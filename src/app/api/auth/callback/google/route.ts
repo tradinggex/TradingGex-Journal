@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { createSession } from "@/lib/session";
 
 interface GoogleUserInfo {
@@ -47,32 +47,55 @@ export async function GET(request: Request) {
 
     if (!userInfo.email) throw new Error("No email from Google");
 
-    let user = await prisma.user.findUnique({
-      where: { email: userInfo.email },
-      include: { oauthAccounts: true },
-    });
+    const { data: existingUser } = await supabase
+      .from("User")
+      .select("id, email, name")
+      .eq("email", userInfo.email)
+      .maybeSingle();
 
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email: userInfo.email,
-          name: userInfo.name ?? null,
-          oauthAccounts: {
-            create: { provider: "google", providerAccountId: userInfo.id },
-          },
-        },
-        include: { oauthAccounts: true },
+    let userId: string;
+    let userName: string | null;
+
+    if (!existingUser) {
+      const id = crypto.randomUUID();
+      const { data: newUser, error } = await supabase
+        .from("User")
+        .insert({ id, email: userInfo.email, name: userInfo.name ?? null })
+        .select("id, email, name")
+        .single();
+
+      if (error || !newUser) throw error ?? new Error("Failed to create user");
+
+      await supabase.from("OAuthAccount").insert({
+        id: crypto.randomUUID(),
+        userId: id,
+        provider: "google",
+        providerAccountId: userInfo.id,
       });
+
+      userId = newUser.id;
+      userName = newUser.name;
     } else {
-      const hasGoogle = user.oauthAccounts.some((a) => a.provider === "google");
-      if (!hasGoogle) {
-        await prisma.oAuthAccount.create({
-          data: { userId: user.id, provider: "google", providerAccountId: userInfo.id },
+      const { data: oauthAccounts } = await supabase
+        .from("OAuthAccount")
+        .select("id")
+        .eq("userId", existingUser.id)
+        .eq("provider", "google");
+
+      if (!oauthAccounts?.length) {
+        await supabase.from("OAuthAccount").insert({
+          id: crypto.randomUUID(),
+          userId: existingUser.id,
+          provider: "google",
+          providerAccountId: userInfo.id,
         });
       }
+
+      userId = existingUser.id;
+      userName = existingUser.name;
     }
 
-    await createSession(user.id, user.email, user.name);
+    await createSession(userId, userInfo.email, userName);
     return NextResponse.redirect(new URL("/", request.url));
   } catch (err) {
     console.error("Google OAuth error:", err);

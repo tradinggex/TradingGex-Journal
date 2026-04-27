@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { createSession, deleteSession } from "@/lib/session";
 
 const registerSchema = z.object({
@@ -43,16 +43,20 @@ export async function register(state: AuthState, formData: FormData): Promise<Au
   const { name, email, password } = result.data;
 
   try {
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const { data: existing } = await supabase.from("User").select("id").eq("email", email).maybeSingle();
     if (existing) {
       return { errors: { email: ["Este email ya está registrado"] } };
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const user = await prisma.user.create({
-      data: { name, email, passwordHash },
-    });
+    const id = crypto.randomUUID();
+    const { data: user, error } = await supabase
+      .from("User")
+      .insert({ id, name, email, passwordHash })
+      .select("id, email, name")
+      .single();
 
+    if (error || !user) throw error ?? new Error("Failed to create user");
     await createSession(user.id, user.email, user.name);
   } catch (err) {
     console.error("[register]", err);
@@ -75,7 +79,13 @@ export async function login(state: AuthState, formData: FormData): Promise<AuthS
   const { email, password } = result.data;
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const { data: user, error } = await supabase
+      .from("User")
+      .select("id, email, name, passwordHash")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (error) throw error;
     if (!user || !user.passwordHash) {
       return { message: "Email o contraseña incorrectos" };
     }

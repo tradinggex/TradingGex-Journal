@@ -1,16 +1,20 @@
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { getDictionary } from "@/lib/i18n";
 import { TradeForm } from "@/components/trades/TradeForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewTradePage() {
-  const [instruments, setups, tags, dict] = await Promise.all([
-    prisma.instrument.findMany({ where: { isActive: true }, orderBy: { symbol: "asc" } }),
-    prisma.setup.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+  const [instrumentsRes, setupsRes, tagsRes, dict] = await Promise.all([
+    supabase.from("Instrument").select("*").eq("isActive", true).order("symbol"),
+    supabase.from("Setup").select("*").eq("isActive", true).order("name"),
+    supabase.from("Tag").select("*").order("name"),
     getDictionary(),
   ]);
+
+  const instruments = instrumentsRes.data ?? [];
+  const setups = setupsRes.data ?? [];
+  const tags = tagsRes.data ?? [];
 
   return (
     <div className="space-y-5">

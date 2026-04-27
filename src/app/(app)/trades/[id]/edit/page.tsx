@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { getDictionary } from "@/lib/i18n";
 import { notFound } from "next/navigation";
@@ -15,22 +15,23 @@ export default async function EditTradePage({ params }: PageProps) {
   const user = await requireUser();
   const { id } = await params;
 
-  const [trade, instruments, setups, tags, dict] = await Promise.all([
-    prisma.trade.findFirst({
-      where: { id, userId: user.userId },
-      include: {
-        tags: { include: { tag: true } },
-        instrument: true,
-      },
-    }),
-    prisma.instrument.findMany({ where: { isActive: true }, orderBy: { symbol: "asc" } }),
-    prisma.setup.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+  const [tradeRes, instrumentsRes, setupsRes, tagsRes, dict] = await Promise.all([
+    supabase
+      .from("Trade")
+      .select("*, instrument:Instrument(*), tags:TradeTag(*, tag:Tag(*))")
+      .eq("id", id)
+      .eq("userId", user.userId)
+      .maybeSingle(),
+    supabase.from("Instrument").select("*").eq("isActive", true).order("symbol"),
+    supabase.from("Setup").select("*").eq("isActive", true).order("name"),
+    supabase.from("Tag").select("*").order("name"),
     getDictionary(),
   ]);
 
+  const trade = tradeRes.data;
   if (!trade) notFound();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { instrument, ...tradeData } = trade;
 
   return (
@@ -43,13 +44,13 @@ export default async function EditTradePage({ params }: PageProps) {
         </div>
         <h1 className="text-2xl font-black text-slate-100 tracking-tight">{dict.topbar.editTrade}</h1>
         <p className="text-sm text-slate-500 font-mono mt-0.5">
-          {instrument?.symbol ?? ""} — {dict.topbar.editTradeSub}
+          {trade.instrument?.symbol ?? ""} — {dict.topbar.editTradeSub}
         </p>
       </div>
       <TradeForm
-        instruments={instruments}
-        setups={setups}
-        tags={tags}
+        instruments={instrumentsRes.data ?? []}
+        setups={setupsRes.data ?? []}
+        tags={tagsRes.data ?? []}
         editTrade={tradeData}
       />
     </div>

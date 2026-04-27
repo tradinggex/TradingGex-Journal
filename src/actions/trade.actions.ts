@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { tradeSchema } from "@/lib/validations/trade.schema";
 import { revalidatePath } from "next/cache";
@@ -14,17 +14,27 @@ export async function createTrade(data: unknown) {
   }
   const { tagIds, ...values } = parsed.data;
 
-  const trade = await prisma.trade.create({
-    data: {
+  const id = crypto.randomUUID();
+  const { data: trade, error } = await supabase
+    .from("Trade")
+    .insert({
+      id,
       ...values,
       userId: user.userId,
-      entryAt: new Date(values.entryAt),
-      exitAt: values.exitAt ? new Date(values.exitAt) : null,
-      tags: tagIds?.length
-        ? { create: tagIds.map((id) => ({ tag: { connect: { id } } })) }
-        : undefined,
-    },
-  });
+      entryAt: new Date(values.entryAt).toISOString(),
+      exitAt: values.exitAt ? new Date(values.exitAt).toISOString() : null,
+    })
+    .select("id")
+    .single();
+
+  if (error || !trade) {
+    console.error("[createTrade]", error);
+    return { error: "Error al guardar el trade" };
+  }
+
+  if (tagIds?.length) {
+    await supabase.from("TradeTag").insert(tagIds.map((tagId) => ({ tradeId: trade.id, tagId })));
+  }
 
   revalidatePath("/trades");
   revalidatePath("/");
@@ -39,23 +49,35 @@ export async function updateTrade(id: string, data: unknown) {
   }
   const { tagIds, ...values } = parsed.data;
 
-  // Verify ownership
-  const existing = await prisma.trade.findFirst({ where: { id, userId: user.userId } });
+  const { data: existing } = await supabase
+    .from("Trade")
+    .select("id")
+    .eq("id", id)
+    .eq("userId", user.userId)
+    .maybeSingle();
+
   if (!existing) return { error: "No encontrado" };
 
-  await prisma.tradeTag.deleteMany({ where: { tradeId: id } });
+  await supabase.from("TradeTag").delete().eq("tradeId", id);
 
-  await prisma.trade.update({
-    where: { id },
-    data: {
+  const { error } = await supabase
+    .from("Trade")
+    .update({
       ...values,
-      entryAt: new Date(values.entryAt),
-      exitAt: values.exitAt ? new Date(values.exitAt) : null,
-      tags: tagIds?.length
-        ? { create: tagIds.map((tid) => ({ tag: { connect: { id: tid } } })) }
-        : undefined,
-    },
-  });
+      entryAt: new Date(values.entryAt).toISOString(),
+      exitAt: values.exitAt ? new Date(values.exitAt).toISOString() : null,
+      updatedAt: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error("[updateTrade]", error);
+    return { error: "Error al actualizar el trade" };
+  }
+
+  if (tagIds?.length) {
+    await supabase.from("TradeTag").insert(tagIds.map((tagId) => ({ tradeId: id, tagId })));
+  }
 
   revalidatePath("/trades");
   revalidatePath(`/trades/${id}`);
@@ -65,7 +87,7 @@ export async function updateTrade(id: string, data: unknown) {
 
 export async function deleteTrade(id: string) {
   const user = await requireUser();
-  await prisma.trade.deleteMany({ where: { id, userId: user.userId } });
+  await supabase.from("Trade").delete().eq("id", id).eq("userId", user.userId);
   revalidatePath("/trades");
   revalidatePath("/");
   redirect("/trades");

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { getDictionary } from "@/lib/i18n";
 import {
@@ -21,36 +21,36 @@ export default async function DashboardPage() {
   const dict = await getDictionary();
   const d = dict.dashboard;
 
-  const rawTrades = await prisma.trade.findMany({
-    where: { userId: user.userId, status: "CLOSED", netPnl: { not: null } },
-    include: { instrument: true, setup: true },
-    orderBy: { entryAt: "asc" },
-  });
+  const [{ data: rawTrades }, { data: last10Raw }] = await Promise.all([
+    supabase
+      .from("Trade")
+      .select("*, instrument:Instrument(*), setup:Setup(*)")
+      .eq("userId", user.userId)
+      .eq("status", "CLOSED")
+      .not("netPnl", "is", null)
+      .order("entryAt", { ascending: true }),
+    supabase
+      .from("Trade")
+      .select("*, instrument:Instrument(*), setup:Setup(*)")
+      .eq("userId", user.userId)
+      .eq("status", "CLOSED")
+      .order("entryAt", { ascending: false })
+      .limit(10),
+  ]);
 
-  const trades = rawTrades.map((t) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const trades = (rawTrades ?? []).map((t: any) => ({
     ...t,
     netPnl: t.netPnl ?? 0,
     rMultiple: t.rMultiple ?? null,
-    entryAt: t.entryAt,
-    exitAt: t.exitAt,
-    setupId: t.setupId ?? null,
-    setup: t.setup ?? null,
-    instrumentId: t.instrumentId,
-    instrument: t.instrument ?? null,
-    direction: t.direction,
   }));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const last10 = last10Raw ?? [] as any[];
 
   const stats = computeStats(trades);
   const equityCurve = buildEquityCurve(trades);
   const dailyPnl = buildDailyPnl(trades);
   const setupStats = buildSetupStats(trades);
-
-  const last10 = await prisma.trade.findMany({
-    where: { userId: user.userId, status: "CLOSED" },
-    include: { instrument: true, setup: true },
-    orderBy: { entryAt: "desc" },
-    take: 10,
-  });
 
   const netPnlColor = stats.netPnl >= 0 ? "green" : "red";
   const profitFactorColor =

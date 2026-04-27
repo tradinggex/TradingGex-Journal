@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { getDictionary } from "@/lib/i18n";
 import {
@@ -22,13 +22,16 @@ export default async function AnalyticsPage() {
   const dict = await getDictionary();
   const d = dict.analytics;
 
-  const rawTrades = await prisma.trade.findMany({
-    where: { userId: user.userId, status: "CLOSED", netPnl: { not: null } },
-    include: { setup: true, instrument: true },
-    orderBy: { entryAt: "asc" },
-  });
+  const { data: rawTrades } = await supabase
+    .from("Trade")
+    .select("*, setup:Setup(*), instrument:Instrument(*)")
+    .eq("userId", user.userId)
+    .eq("status", "CLOSED")
+    .not("netPnl", "is", null)
+    .order("entryAt", { ascending: true });
 
-  const trades = rawTrades.map((t) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const trades = (rawTrades ?? []).map((t: any) => ({
     ...t,
     netPnl: t.netPnl ?? 0,
     rMultiple: t.rMultiple ?? null,

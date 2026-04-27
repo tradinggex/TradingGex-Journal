@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { getDictionary } from "@/lib/i18n";
 import Link from "next/link";
@@ -12,10 +12,11 @@ export default async function JournalPage() {
   const dict = await getDictionary();
   const d = dict.journal;
 
-  const entries = await prisma.journalEntry.findMany({
-    where: { userId: user.userId },
-    orderBy: { date: "desc" },
-  });
+  const { data: entries } = await supabase
+    .from("JournalEntry")
+    .select("*")
+    .eq("userId", user.userId)
+    .order("date", { ascending: false });
 
   return (
     <div className="space-y-5">
@@ -24,7 +25,7 @@ export default async function JournalPage() {
         <div>
           <h1 className="text-xl font-bold text-foreground">{d.title}</h1>
           <p className="text-sm text-fg-subtle mt-0.5">
-            {d.subtitle.replace("{count}", String(entries.length))}
+            {d.subtitle.replace("{count}", String((entries ?? []).length))}
           </p>
         </div>
         <Link
@@ -35,7 +36,7 @@ export default async function JournalPage() {
         </Link>
       </div>
 
-      {entries.length === 0 ? (
+      {(entries ?? []).length === 0 ? (
         <div className="card px-6 py-16 text-center">
           <div className="text-4xl mb-3">📓</div>
           <div className="text-fg-muted font-semibold mb-1">{d.noEntries}</div>
@@ -43,7 +44,7 @@ export default async function JournalPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {entries.map((entry) => {
+          {(entries ?? []).map((entry) => {
             const emotion = EMOTIONS.find((e) => e.value === entry.emotionalState);
             return (
               <Link
