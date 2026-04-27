@@ -15,6 +15,7 @@ export async function createTrade(data: unknown) {
   const { tagIds, ...values } = parsed.data;
 
   const id = crypto.randomUUID();
+  const now = new Date().toISOString();
   const { data: trade, error } = await supabase
     .from("Trade")
     .insert({
@@ -23,6 +24,8 @@ export async function createTrade(data: unknown) {
       userId: user.userId,
       entryAt: new Date(values.entryAt).toISOString(),
       exitAt: values.exitAt ? new Date(values.exitAt).toISOString() : null,
+      createdAt: now,
+      updatedAt: now,
     })
     .select("id")
     .single();

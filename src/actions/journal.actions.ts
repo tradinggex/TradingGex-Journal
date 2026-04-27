@@ -13,9 +13,10 @@ export async function createJournalEntry(data: unknown) {
     return { error: parsed.error.flatten().fieldErrors };
   }
   const id = crypto.randomUUID();
+  const now = new Date().toISOString();
   const { error } = await supabase
     .from("JournalEntry")
-    .insert({ id, ...parsed.data, userId: user.userId });
+    .insert({ id, ...parsed.data, userId: user.userId, createdAt: now, updatedAt: now });
   if (error) {
     console.error("[createJournalEntry]", error);
     return { error: "Error al guardar la entrada" };

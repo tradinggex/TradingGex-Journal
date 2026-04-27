@@ -51,9 +51,10 @@ export async function register(state: AuthState, formData: FormData): Promise<Au
 
     const passwordHash = await bcrypt.hash(password, 12);
     const id = crypto.randomUUID();
+    const now = new Date().toISOString();
     const { data: user, error } = await supabase
       .from("User")
-      .insert({ id, name, email, passwordHash })
+      .insert({ id, name, email, passwordHash, createdAt: now, updatedAt: now })
       .select("id, email, name")
       .single();
 

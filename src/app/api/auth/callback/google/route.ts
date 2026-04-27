@@ -58,9 +58,10 @@ export async function GET(request: Request) {
 
     if (!existingUser) {
       const id = crypto.randomUUID();
+      const now = new Date().toISOString();
       const { data: newUser, error } = await supabase
         .from("User")
-        .insert({ id, email: userInfo.email, name: userInfo.name ?? null })
+        .insert({ id, email: userInfo.email, name: userInfo.name ?? null, createdAt: now, updatedAt: now })
         .select("id, email, name")
         .single();
 

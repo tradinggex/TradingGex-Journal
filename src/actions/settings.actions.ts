@@ -24,7 +24,8 @@ export async function createInstrument(data: unknown) {
   const parsed = instrumentSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
   const id = crypto.randomUUID();
-  const { error } = await supabase.from("Instrument").insert({ id, ...parsed.data });
+  const now = new Date().toISOString();
+  const { error } = await supabase.from("Instrument").insert({ id, ...parsed.data, createdAt: now, updatedAt: now });
   if (error) return { error: "Error al crear instrumento" };
   revalidatePath("/settings");
   return { success: true, id };
@@ -59,7 +60,8 @@ export async function createSetup(data: unknown) {
   const parsed = setupSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
   const id = crypto.randomUUID();
-  const { error } = await supabase.from("Setup").insert({ id, ...parsed.data });
+  const now = new Date().toISOString();
+  const { error } = await supabase.from("Setup").insert({ id, ...parsed.data, createdAt: now, updatedAt: now });
   if (error) return { error: "Error al crear setup" };
   revalidatePath("/settings");
   return { success: true, id };
