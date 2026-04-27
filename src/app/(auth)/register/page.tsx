@@ -1,13 +1,21 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { register, type AuthState } from "@/actions/auth";
 import { useTranslation } from "@/lib/i18n/context";
 
 export default function RegisterPage() {
   const t = useTranslation();
+  const router = useRouter();
   const [state, action, pending] = useActionState<AuthState, FormData>(register, undefined);
+
+  useEffect(() => {
+    if (state?.success) {
+      router.replace("/");
+    }
+  }, [state, router]);
 
   return (
     <div className="w-full max-w-sm">

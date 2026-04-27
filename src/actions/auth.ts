@@ -1,10 +1,10 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { supabase } from "@/lib/supabase";
 import { createSession, deleteSession } from "@/lib/session";
+import { redirect } from "next/navigation";
 
 const registerSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").trim(),
@@ -26,6 +26,7 @@ const loginSchema = z.object({
 export type AuthState = {
   errors?: Record<string, string[]>;
   message?: string;
+  success?: boolean;
 } | undefined;
 
 export async function register(state: AuthState, formData: FormData): Promise<AuthState> {
@@ -63,7 +64,7 @@ export async function register(state: AuthState, formData: FormData): Promise<Au
     return { message: "Error al conectar con la base de datos. Intenta de nuevo." };
   }
 
-  redirect("/");
+  return { success: true };
 }
 
 export async function login(state: AuthState, formData: FormData): Promise<AuthState> {
@@ -101,7 +102,7 @@ export async function login(state: AuthState, formData: FormData): Promise<AuthS
     return { message: "Error al conectar con la base de datos. Intenta de nuevo." };
   }
 
-  redirect("/");
+  return { success: true };
 }
 
 export async function logout() {
