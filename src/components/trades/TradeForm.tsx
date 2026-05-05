@@ -180,14 +180,21 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
     };
 
     startTransition(async () => {
-      const res = isEditing
-        ? await updateTrade(editTrade!.id, data)
-        : await createTrade(data);
-      if ("error" in res) {
+      try {
+        const res = isEditing
+          ? await updateTrade(editTrade!.id, data)
+          : await createTrade(data);
+        if (!res || "error" in res) {
+          const msg = typeof res?.error === "string" ? res.error : t("trades.toasts.saveError");
+          console.error("[TradeForm] save error:", res?.error);
+          toast.error(msg);
+        } else {
+          toast.success(isEditing ? t("trades.toasts.updated") : t("trades.toasts.registered"));
+          router.push(isEditing ? `/trades/${editTrade!.id}` : "/trades");
+        }
+      } catch (err) {
+        console.error("[TradeForm] unexpected:", err);
         toast.error(t("trades.toasts.saveError"));
-      } else {
-        toast.success(isEditing ? t("trades.toasts.updated") : t("trades.toasts.registered"));
-        router.push(isEditing ? `/trades/${editTrade!.id}` : "/trades");
       }
     });
   }

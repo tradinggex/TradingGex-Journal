@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { formatCurrency } from "@/lib/formatters";
 
 interface CalendarHeatmapProps {
@@ -23,9 +24,20 @@ function getCellStyle(pnl: number | undefined, isToday: boolean): string {
 }
 
 export function CalendarHeatmap({ dailyPnl }: CalendarHeatmapProps) {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+  const today = new Date();
+  const [year, setYear] = useState(today.getFullYear());
+  const [month, setMonth] = useState(today.getMonth());
+
+  function prevMonth() {
+    if (month === 0) { setYear(y => y - 1); setMonth(11); }
+    else setMonth(m => m - 1);
+  }
+  function nextMonth() {
+    if (month === 11) { setYear(y => y + 1); setMonth(0); }
+    else setMonth(m => m + 1);
+  }
+
+  const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
 
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
@@ -60,11 +72,34 @@ export function CalendarHeatmap({ dailyPnl }: CalendarHeatmapProps) {
 
   return (
     <div>
-      {/* Header: month label + stats */}
+      {/* Header: navigation + month label + stats */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
-        <span className="text-base font-bold text-foreground capitalize">
-          {monthLabel}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={prevMonth}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-fg-muted hover:text-foreground hover:bg-surface2 transition-colors"
+            aria-label="Mes anterior"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <span className="text-base font-bold text-foreground capitalize min-w-[140px] text-center">
+            {monthLabel}
+          </span>
+          <button
+            type="button"
+            onClick={nextMonth}
+            disabled={isCurrentMonth}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-fg-muted hover:text-foreground hover:bg-surface2 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Mes siguiente"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+        </div>
         <div className="flex items-center gap-4 text-sm">
           <span className="text-emerald-400">
             <span className="text-fg-subtle mr-1">win</span>
@@ -104,9 +139,9 @@ export function CalendarHeatmap({ dailyPnl }: CalendarHeatmapProps) {
           const pnl = dailyPnl[dateStr];
           const hasTrade = pnl !== undefined;
           const isToday =
-            now.getDate() === day &&
-            now.getMonth() === month &&
-            now.getFullYear() === year;
+            today.getDate() === day &&
+            today.getMonth() === month &&
+            today.getFullYear() === year;
 
           const cellStyle = getCellStyle(hasTrade ? pnl : undefined, isToday);
 

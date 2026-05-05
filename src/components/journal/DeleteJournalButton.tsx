@@ -1,12 +1,14 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { deleteJournalEntry } from "@/actions/journal.actions";
 import { useTranslation } from "@/lib/i18n/context";
 
 export function DeleteJournalButton({ entryId }: { entryId: string }) {
   const t = useTranslation();
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
@@ -14,10 +16,11 @@ export function DeleteJournalButton({ entryId }: { entryId: string }) {
     startTransition(async () => {
       try {
         await deleteJournalEntry(entryId);
+        toast.success(t("journal.delete.success"));
+        router.push("/journal");
       } catch {
-        // redirect throws — normal
+        toast.error("Error al eliminar la entrada");
       }
-      toast.success(t("journal.delete.success"));
     });
   }
 

@@ -4,7 +4,10 @@ import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { journalSchema } from "@/lib/validations/journal.schema";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+
+function stripNulls(obj: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== null && v !== undefined));
+}
 
 export async function createJournalEntry(data: unknown) {
   const user = await requireUser();
@@ -16,10 +19,10 @@ export async function createJournalEntry(data: unknown) {
   const now = new Date().toISOString();
   const { error } = await supabase
     .from("JournalEntry")
-    .insert({ id, ...parsed.data, userId: user.userId, createdAt: now, updatedAt: now });
+    .insert(stripNulls({ id, ...parsed.data, userId: user.userId, createdAt: now, updatedAt: now }));
   if (error) {
-    console.error("[createJournalEntry]", error);
-    return { error: "Error al guardar la entrada" };
+    console.error("[createJournalEntry] code=%s msg=%s", error?.code, error?.message);
+    return { error: error?.message ?? "Error al guardar la entrada" };
   }
   revalidatePath("/journal");
   return { success: true, id };
@@ -43,12 +46,12 @@ export async function updateJournalEntry(id: string, data: unknown) {
 
   const { error } = await supabase
     .from("JournalEntry")
-    .update({ ...parsed.data, updatedAt: new Date().toISOString() })
+    .update(stripNulls({ ...parsed.data, updatedAt: new Date().toISOString() }))
     .eq("id", id);
 
   if (error) {
-    console.error("[updateJournalEntry]", error);
-    return { error: "Error al actualizar la entrada" };
+    console.error("[updateJournalEntry] code=%s msg=%s", error?.code, error?.message);
+    return { error: error?.message ?? "Error al actualizar la entrada" };
   }
 
   revalidatePath("/journal");
@@ -60,5 +63,5 @@ export async function deleteJournalEntry(id: string) {
   const user = await requireUser();
   await supabase.from("JournalEntry").delete().eq("id", id).eq("userId", user.userId);
   revalidatePath("/journal");
-  redirect("/journal");
+  return { success: true };
 }

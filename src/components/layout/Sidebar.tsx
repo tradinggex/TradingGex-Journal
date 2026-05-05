@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { logout } from "@/actions/auth";
 import { useTranslation } from "@/lib/i18n/context";
@@ -14,6 +14,7 @@ interface SidebarProps {
 export function Sidebar({ userEmail, userName }: SidebarProps) {
   const t = useTranslation();
   const pathname = usePathname();
+  const router = useRouter();
   const initials = userName
     ? userName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : userEmail?.[0]?.toUpperCase() ?? "TG";
@@ -80,14 +81,13 @@ export function Sidebar({ userEmail, userName }: SidebarProps) {
               )}
             </div>
           </div>
-          <form action={logout}>
-            <button
-              type="submit"
-              className="w-full text-left text-xs text-fg-subtle hover:text-red-500 transition-colors"
-            >
-              {t("nav.logout")}
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={async () => { await logout(); router.push("/login"); }}
+            className="w-full text-left text-xs text-fg-subtle hover:text-red-500 transition-colors"
+          >
+            {t("nav.logout")}
+          </button>
         </div>
       </div>
     </aside>

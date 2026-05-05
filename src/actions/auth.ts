@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { supabase } from "@/lib/supabase";
 import { createSession, deleteSession } from "@/lib/session";
-import { redirect } from "next/navigation";
 
 const registerSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").trim(),
@@ -108,5 +107,5 @@ export async function login(state: AuthState, formData: FormData): Promise<AuthS
 
 export async function logout() {
   await deleteSession();
-  redirect("/login");
+  return { success: true };
 }

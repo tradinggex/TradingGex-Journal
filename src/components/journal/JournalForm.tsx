@@ -63,19 +63,26 @@ export function JournalForm({ editEntry, defaultDate, marketConditions }: Journa
     };
 
     startTransition(async () => {
-      const res = isEditing
-        ? await updateJournalEntry(editEntry!.id, data)
-        : await createJournalEntry(data);
+      try {
+        const res = isEditing
+          ? await updateJournalEntry(editEntry!.id, data)
+          : await createJournalEntry(data);
 
-      if ("error" in res) {
-        toast.error(t("journal.toasts.saveError"));
-      } else {
-        toast.success(isEditing ? t("journal.toasts.updated") : t("journal.toasts.saved"));
-        if (isEditing) {
-          router.push(`/journal/${editEntry!.id}`);
-        } else if ("id" in res) {
-          router.push(`/journal/${res.id}`);
+        if (!res || "error" in res) {
+          const msg = typeof res?.error === "string" ? res.error : t("journal.toasts.saveError");
+          console.error("[JournalForm] save error:", res?.error);
+          toast.error(msg);
+        } else {
+          toast.success(isEditing ? t("journal.toasts.updated") : t("journal.toasts.saved"));
+          if (isEditing) {
+            router.push(`/journal/${editEntry!.id}`);
+          } else if ("id" in res) {
+            router.push(`/journal/${res.id}`);
+          }
         }
+      } catch (err) {
+        console.error("[JournalForm] unexpected:", err);
+        toast.error(t("journal.toasts.saveError"));
       }
     });
   }

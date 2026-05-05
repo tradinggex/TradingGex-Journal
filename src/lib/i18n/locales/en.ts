@@ -64,6 +64,7 @@ export const en = {
       submitting: "Signing in...",
       noAccount: "Don't have an account?",
       register: "Register",
+      forgotPassword: "Forgot your password?",
     },
     register: {
       title: "Create account",

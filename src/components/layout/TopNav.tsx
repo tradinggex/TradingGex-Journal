@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/actions/auth";
@@ -16,6 +16,7 @@ interface TopNavProps {
 export function TopNav({ userEmail, userName }: TopNavProps) {
   const t = useTranslation();
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Close mobile menu on route change
@@ -115,15 +116,14 @@ export function TopNav({ userEmail, userName }: TopNavProps) {
                   <div className="text-[10px] text-fg-subtle truncate">{userEmail}</div>
                 )}
               </div>
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="text-[11px] text-fg-subtle hover:text-red-500 transition-colors px-1"
-                  title="Sign out"
-                >
-                  {t("nav.logout")}
-                </button>
-              </form>
+              <button
+                type="button"
+                onClick={async () => { await logout(); router.push("/login"); }}
+                className="text-[11px] text-fg-subtle hover:text-red-500 transition-colors px-1"
+                title="Sign out"
+              >
+                {t("nav.logout")}
+              </button>
             </div>
 
             {/* Hamburger — mobile only */}
@@ -206,14 +206,13 @@ export function TopNav({ userEmail, userName }: TopNavProps) {
                     <div className="text-xs text-fg-subtle truncate">{userEmail}</div>
                   )}
                 </div>
-                <form action={logout}>
-                  <button
-                    type="submit"
-                    className="text-xs text-fg-subtle hover:text-red-500 transition-colors px-1 py-1"
-                  >
-                    {t("nav.logout")}
-                  </button>
-                </form>
+                <button
+                  type="button"
+                  onClick={async () => { await logout(); router.push("/login"); }}
+                  className="text-xs text-fg-subtle hover:text-red-500 transition-colors px-1 py-1"
+                >
+                  {t("nav.logout")}
+                </button>
               </div>
             </div>
           </div>

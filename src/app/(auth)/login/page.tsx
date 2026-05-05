@@ -110,12 +110,17 @@ function LoginForm() {
           </button>
         </form>
 
-        <p className="text-center text-xs text-fg-subtle mt-6">
-          {t("auth.login.noAccount")}{" "}
-          <Link href="/register" className="text-purple-500 hover:text-purple-400 transition-colors">
-            {t("auth.login.register")}
+        <div className="flex items-center justify-between mt-6">
+          <p className="text-xs text-fg-subtle">
+            {t("auth.login.noAccount")}{" "}
+            <Link href="/register" className="text-purple-500 hover:text-purple-400 transition-colors">
+              {t("auth.login.register")}
+            </Link>
+          </p>
+          <Link href="/forgot-password" className="text-xs text-fg-subtle hover:text-fg-muted transition-colors">
+            {t("auth.login.forgotPassword")}
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

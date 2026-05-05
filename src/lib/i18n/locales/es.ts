@@ -66,6 +66,7 @@ export const es: Dict = {
       submitting: "Iniciando sesión...",
       noAccount: "¿No tienes cuenta?",
       register: "Regístrate",
+      forgotPassword: "¿Olvidaste tu contraseña?",
     },
     register: {
       title: "Crear cuenta",

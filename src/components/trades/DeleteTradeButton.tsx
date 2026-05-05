@@ -1,12 +1,14 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { deleteTrade } from "@/actions/trade.actions";
 import { useTranslation } from "@/lib/i18n/context";
 
 export function DeleteTradeButton({ tradeId }: { tradeId: string }) {
   const t = useTranslation();
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
@@ -14,10 +16,11 @@ export function DeleteTradeButton({ tradeId }: { tradeId: string }) {
     startTransition(async () => {
       try {
         await deleteTrade(tradeId);
+        toast.success(t("trades.delete.success"));
+        router.push("/trades");
       } catch {
-        // redirect throws — that's normal
+        toast.error("Error al eliminar la operación");
       }
-      toast.success(t("trades.delete.success"));
     });
   }
 

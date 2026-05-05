@@ -4,7 +4,10 @@ import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { tradeSchema } from "@/lib/validations/trade.schema";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+
+function stripNulls(obj: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== null && v !== undefined));
+}
 
 export async function createTrade(data: unknown) {
   const user = await requireUser();
@@ -16,23 +19,26 @@ export async function createTrade(data: unknown) {
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+
+  const insertPayload = stripNulls({
+    id,
+    ...values,
+    userId: user.userId,
+    entryAt: new Date(values.entryAt).toISOString(),
+    exitAt: values.exitAt ? new Date(values.exitAt).toISOString() : null,
+    createdAt: now,
+    updatedAt: now,
+  });
+
   const { data: trade, error } = await supabase
     .from("Trade")
-    .insert({
-      id,
-      ...values,
-      userId: user.userId,
-      entryAt: new Date(values.entryAt).toISOString(),
-      exitAt: values.exitAt ? new Date(values.exitAt).toISOString() : null,
-      createdAt: now,
-      updatedAt: now,
-    })
+    .insert(insertPayload)
     .select("id")
     .single();
 
   if (error || !trade) {
-    console.error("[createTrade]", error);
-    return { error: "Error al guardar el trade" };
+    console.error("[createTrade] code=%s msg=%s", error?.code, error?.message);
+    return { error: error?.message ?? "Error al guardar el trade" };
   }
 
   if (tagIds?.length) {
@@ -63,19 +69,21 @@ export async function updateTrade(id: string, data: unknown) {
 
   await supabase.from("TradeTag").delete().eq("tradeId", id);
 
+  const updatePayload = stripNulls({
+    ...values,
+    entryAt: new Date(values.entryAt).toISOString(),
+    exitAt: values.exitAt ? new Date(values.exitAt).toISOString() : null,
+    updatedAt: new Date().toISOString(),
+  });
+
   const { error } = await supabase
     .from("Trade")
-    .update({
-      ...values,
-      entryAt: new Date(values.entryAt).toISOString(),
-      exitAt: values.exitAt ? new Date(values.exitAt).toISOString() : null,
-      updatedAt: new Date().toISOString(),
-    })
+    .update(updatePayload)
     .eq("id", id);
 
   if (error) {
-    console.error("[updateTrade]", error);
-    return { error: "Error al actualizar el trade" };
+    console.error("[updateTrade] code=%s msg=%s", error?.code, error?.message);
+    return { error: error?.message ?? "Error al actualizar el trade" };
   }
 
   if (tagIds?.length) {
@@ -93,5 +101,5 @@ export async function deleteTrade(id: string) {
   await supabase.from("Trade").delete().eq("id", id).eq("userId", user.userId);
   revalidatePath("/trades");
   revalidatePath("/");
-  redirect("/trades");
+  return { success: true };
 }
