@@ -10,7 +10,7 @@ import {
 import { formatCurrency, formatPercent, formatDateTime } from "@/lib/formatters";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { EquityCurveChart } from "@/components/dashboard/EquityCurveChart";
-import { CalendarHeatmap } from "@/components/dashboard/CalendarHeatmap";
+import { CalendarHeatmap, type CalendarTrade } from "@/components/dashboard/CalendarHeatmap";
 import { SetupBreakdown } from "@/components/dashboard/SetupBreakdown";
 import Link from "next/link";
 
@@ -51,6 +51,17 @@ export default async function DashboardPage() {
   const equityCurve = buildEquityCurve(trades);
   const dailyPnl = buildDailyPnl(trades);
   const setupStats = buildSetupStats(trades);
+
+  const calendarTrades: CalendarTrade[] = trades.map((t: any) => ({
+    id: t.id,
+    symbol: t.instrument?.symbol ?? "—",
+    direction: t.direction,
+    entryAt: t.entryAt,
+    entryPrice: t.entryPrice,
+    exitPrice: t.exitPrice ?? null,
+    netPnl: t.netPnl,
+    rMultiple: t.rMultiple ?? null,
+  }));
 
   const netPnlColor = stats.netPnl >= 0 ? "green" : "red";
   const profitFactorColor =
@@ -105,7 +116,7 @@ export default async function DashboardPage() {
       {/* Calendar */}
       <div className="card p-6">
         <div className="card-label mb-1">{d.monthlyCalendar}</div>
-        <CalendarHeatmap dailyPnl={dailyPnl} />
+        <CalendarHeatmap dailyPnl={dailyPnl} trades={calendarTrades} />
       </div>
 
       {/* Last 10 Trades + Setup Breakdown */}
