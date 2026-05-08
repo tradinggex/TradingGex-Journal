@@ -24,6 +24,17 @@ export const tradeSchema = z.object({
   mistakes: z.string().optional().nullable(),
   lessonsLearned: z.string().optional().nullable(),
   tagIds: z.array(z.string()).optional().default([]),
+  // Options fields — all optional, ignored for non-options trades
+  optionType: z.enum(["CALL", "PUT"]).optional().nullable(),
+  strikePrice: z.coerce.number().positive().optional().nullable(),
+  expirationDate: z.string().optional().nullable(),
+  premium: z.coerce.number().optional().nullable(),
+  delta: z.coerce.number().min(-1).max(1).optional().nullable(),
+  gamma: z.coerce.number().min(0).optional().nullable(),
+  theta: z.coerce.number().optional().nullable(),
+  vega: z.coerce.number().min(0).optional().nullable(),
+  openInterest: z.coerce.number().int().min(0).optional().nullable(),
+  impliedVolatility: z.coerce.number().min(0).max(1000).optional().nullable(),
 });
 
 export type TradeFormValues = z.infer<typeof tradeSchema>;

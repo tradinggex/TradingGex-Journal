@@ -213,6 +213,65 @@ export default async function TradeDetailPage({ params }: PageProps) {
         </div>
       </div>
 
+      {/* Options details — only shown when trade has optionType */}
+      {trade.optionType && (
+        <div className="card p-5">
+          <div className="text-xs text-fg-subtle uppercase tracking-wider font-mono mb-4">Options details</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {[
+              ["Contract", trade.optionType],
+              ["Strike", trade.strikePrice != null ? trade.strikePrice : "—"],
+              ["Expiry", trade.expirationDate ? String(trade.expirationDate).slice(0, 10) : "—"],
+              ["Premium", trade.premium != null ? formatCurrency(trade.premium) : "—"],
+              ["IV", trade.impliedVolatility != null ? `${trade.impliedVolatility}%` : "—"],
+              ["Open int.", trade.openInterest != null ? Number(trade.openInterest).toLocaleString() : "—"],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="space-y-1">
+                <div className="text-[10px] text-fg-subtle font-mono uppercase tracking-wider">{label}</div>
+                <div className={`text-sm font-bold font-mono ${
+                  label === "Contract"
+                    ? trade.optionType === "CALL"
+                      ? "text-emerald-400"
+                      : "text-red-400"
+                    : "text-foreground"
+                }`}>
+                  {String(value)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Greeks */}
+          {(trade.delta != null || trade.gamma != null || trade.theta != null || trade.vega != null) && (
+            <div className="mt-4 pt-4 border-t border-white/5">
+              <div className="text-[10px] text-fg-subtle font-mono uppercase tracking-wider mb-3">Greeks</div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  ["Δ Delta", trade.delta],
+                  ["Γ Gamma", trade.gamma],
+                  ["Θ Theta", trade.theta],
+                  ["V Vega", trade.vega],
+                ]
+                  .filter(([, v]) => v != null)
+                  .map(([label, value]) => (
+                    <div key={String(label)} className="space-y-1">
+                      <div className="text-[10px] text-fg-subtle font-mono">{label}</div>
+                      <div className={`text-sm font-bold font-mono ${
+                        label === "Θ Theta" && Number(value) < 0
+                          ? "text-red-400"
+                          : "text-purple-400"
+                      }`}>
+                        {Number(value) >= 0 && label !== "Θ Theta" ? "" : ""}
+                        {Number(value).toFixed(4)}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Screenshots */}
       <ScreenshotGallery tradeId={id} screenshots={trade.screenshots} />
     </div>

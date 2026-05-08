@@ -57,6 +57,17 @@ interface TradeFormProps {
     mistakes: string | null;
     lessonsLearned: string | null;
     tags: { tag: { id: string } }[];
+    // Options fields
+    optionType: string | null;
+    strikePrice: number | null;
+    expirationDate: string | null;
+    premium: number | null;
+    delta: number | null;
+    gamma: number | null;
+    theta: number | null;
+    vega: number | null;
+    openInterest: number | null;
+    impliedVolatility: number | null;
   };
 }
 
@@ -103,7 +114,19 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
     notes: editTrade?.notes ?? "",
     mistakes: editTrade?.mistakes ?? "",
     lessonsLearned: editTrade?.lessonsLearned ?? "",
+    // Options
+    optionType: editTrade?.optionType ?? "",
+    strikePrice: editTrade?.strikePrice != null ? String(editTrade.strikePrice) : "",
+    expirationDate: editTrade?.expirationDate ?? "",
+    premium: editTrade?.premium != null ? String(editTrade.premium) : "",
+    delta: editTrade?.delta != null ? String(editTrade.delta) : "",
+    gamma: editTrade?.gamma != null ? String(editTrade.gamma) : "",
+    theta: editTrade?.theta != null ? String(editTrade.theta) : "",
+    vega: editTrade?.vega != null ? String(editTrade.vega) : "",
+    openInterest: editTrade?.openInterest != null ? String(editTrade.openInterest) : "",
+    impliedVolatility: editTrade?.impliedVolatility != null ? String(editTrade.impliedVolatility) : "",
   });
+  const [isOptions, setIsOptions] = useState(!!editTrade?.optionType);
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTagIds);
   const [autoCalc, setAutoCalc] = useState(true);
 
@@ -177,6 +200,17 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
       mistakes: form.mistakes || null,
       lessonsLearned: form.lessonsLearned || null,
       tagIds: selectedTags,
+      // Options — only send when the toggle is on
+      optionType: isOptions && form.optionType ? form.optionType : null,
+      strikePrice: isOptions && form.strikePrice ? parseFloat(form.strikePrice) : null,
+      expirationDate: isOptions && form.expirationDate ? form.expirationDate : null,
+      premium: isOptions && form.premium ? parseFloat(form.premium) : null,
+      delta: isOptions && form.delta !== "" ? parseFloat(form.delta) : null,
+      gamma: isOptions && form.gamma !== "" ? parseFloat(form.gamma) : null,
+      theta: isOptions && form.theta !== "" ? parseFloat(form.theta) : null,
+      vega: isOptions && form.vega !== "" ? parseFloat(form.vega) : null,
+      openInterest: isOptions && form.openInterest ? parseInt(form.openInterest) : null,
+      impliedVolatility: isOptions && form.impliedVolatility ? parseFloat(form.impliedVolatility) : null,
     };
 
     startTransition(async () => {
@@ -369,6 +403,191 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
             />
           </div>
         </div>
+      </div>
+
+      {/* ── Options ── */}
+      <div className="card p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className={sectionTitle + " flex-1"}>Options</div>
+          <label className="flex items-center gap-2 text-xs text-fg-subtle cursor-pointer ml-4 select-none">
+            <div
+              role="switch"
+              aria-checked={isOptions}
+              onClick={() => setIsOptions((v) => !v)}
+              className={`relative w-9 h-5 rounded-full transition-colors cursor-pointer ${
+                isOptions ? "bg-purple-500" : "bg-surface3"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                  isOptions ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </div>
+            Options trade
+          </label>
+        </div>
+
+        {isOptions && (
+          <div className="space-y-4">
+            {/* Contract type + core fields */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label className={labelCls}>Contract type</label>
+                <div className="flex gap-2">
+                  {["CALL", "PUT"].map((ct) => (
+                    <button
+                      key={ct}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, optionType: f.optionType === ct ? "" : ct }))}
+                      className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${
+                        form.optionType === ct
+                          ? ct === "CALL"
+                            ? "bg-emerald-400/15 text-emerald-400 border-emerald-400/40"
+                            : "bg-red-400/15 text-red-400 border-red-400/40"
+                          : "border-[var(--border)] text-fg-subtle"
+                      }`}
+                    >
+                      {ct}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className={labelCls}>Strike price</label>
+                <input
+                  type="number"
+                  step="any"
+                  className={inputCls}
+                  placeholder="5100.00"
+                  value={form.strikePrice}
+                  onChange={(e) => setForm((f) => ({ ...f, strikePrice: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Expiration date</label>
+                <input
+                  type="date"
+                  className={inputCls}
+                  value={form.expirationDate}
+                  onChange={(e) => setForm((f) => ({ ...f, expirationDate: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Premium</label>
+                <input
+                  type="number"
+                  step="any"
+                  className={inputCls}
+                  placeholder="3.50"
+                  value={form.premium}
+                  onChange={(e) => setForm((f) => ({ ...f, premium: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            {/* Market data */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label className={labelCls}>
+                  Implied volatility{" "}
+                  <span className="text-fg-subtle/60">(%)</span>
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  className={inputCls}
+                  placeholder="32.5"
+                  value={form.impliedVolatility}
+                  onChange={(e) => setForm((f) => ({ ...f, impliedVolatility: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Open interest</label>
+                <input
+                  type="number"
+                  step="1"
+                  min="0"
+                  className={inputCls}
+                  placeholder="12400"
+                  value={form.openInterest}
+                  onChange={(e) => setForm((f) => ({ ...f, openInterest: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            {/* Greeks */}
+            <div>
+              <p className="text-[10px] text-fg-subtle uppercase tracking-wider font-mono mb-3">
+                Greeks{" "}
+                <span className="normal-case tracking-normal opacity-60">— optional, for reference</span>
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div>
+                  <label className={labelCls}>
+                    Delta{" "}
+                    <span className="text-fg-subtle/60">(−1 to 1)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    min="-1"
+                    max="1"
+                    className={inputCls}
+                    placeholder="0.45"
+                    value={form.delta}
+                    onChange={(e) => setForm((f) => ({ ...f, delta: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>
+                    Gamma{" "}
+                    <span className="text-fg-subtle/60">(≥ 0)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    min="0"
+                    className={inputCls}
+                    placeholder="0.02"
+                    value={form.gamma}
+                    onChange={(e) => setForm((f) => ({ ...f, gamma: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>
+                    Theta{" "}
+                    <span className="text-fg-subtle/60">($/day)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    className={inputCls}
+                    placeholder="-0.08"
+                    value={form.theta}
+                    onChange={(e) => setForm((f) => ({ ...f, theta: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>
+                    Vega{" "}
+                    <span className="text-fg-subtle/60">($/1% IV)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    min="0"
+                    className={inputCls}
+                    placeholder="0.15"
+                    value={form.vega}
+                    onChange={(e) => setForm((f) => ({ ...f, vega: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── PnL & Risk ── */}

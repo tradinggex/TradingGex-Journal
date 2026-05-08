@@ -105,6 +105,18 @@ model Trade {
   mistakes       String?   @db.Text
   lessonsLearned String?   @db.Text
 
+  // Options fields (null for non-options trades)
+  optionType        String?  // CALL | PUT
+  strikePrice       Float?
+  expirationDate    DateTime? @db.Date
+  premium           Float?
+  delta             Float?
+  gamma             Float?
+  theta             Float?
+  vega              Float?
+  openInterest      BigInt?
+  impliedVolatility Float?
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
