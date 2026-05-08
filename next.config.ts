@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const ALLOWED_ORIGINS = [
   "https://tradinggexjournal.com",
   "https://tradinggex-journal.netlify.app",
+  "https://trading-journal-eta-hazel.vercel.app",
   "http://localhost:3000",
 ];
 
