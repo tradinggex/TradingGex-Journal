@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { EMOTIONS } from "@/lib/constants";
+import { formatCurrency } from "@/lib/formatters";
 import { createTrade, updateTrade } from "@/actions/trade.actions";
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -131,6 +132,60 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
   const [autoCalc, setAutoCalc] = useState(true);
 
   const selectedInstrument = instruments.find((i) => i.id === form.instrumentId);
+
+  // Options P&L breakdown (theta acceleration + delta sensitivity)
+  type OptionsCalc = {
+    daysHeld: number;
+    dteEntry: number;
+    dteExit: number;
+    accelFactor: number;
+    thetaPnl: number;
+    thetaSimple: number;
+    deltaSens: number;
+  };
+  const [optionsCalc, setOptionsCalc] = useState<OptionsCalc | null>(null);
+
+  useEffect(() => {
+    if (!isOptions) { setOptionsCalc(null); return; }
+
+    const entryDate = form.entryAt ? new Date(form.entryAt) : null;
+    const exitDate  = form.exitAt  ? new Date(form.exitAt)  : new Date();
+    const expiryDate = form.expirationDate
+      ? new Date(form.expirationDate + "T12:00:00")
+      : null;
+
+    if (!entryDate || isNaN(entryDate.getTime())) { setOptionsCalc(null); return; }
+
+    const MS = 86_400_000;
+    const daysHeld  = Math.max(0, Math.round((exitDate.getTime() - entryDate.getTime()) / MS));
+    const dteEntry  = expiryDate && !isNaN(expiryDate.getTime())
+      ? Math.max(0, Math.round((expiryDate.getTime() - entryDate.getTime()) / MS))
+      : 0;
+    const dteExit   = expiryDate && !isNaN(expiryDate.getTime())
+      ? Math.max(0, Math.round((expiryDate.getTime() - exitDate.getTime())  / MS))
+      : 0;
+
+    // Integral of theta × √(DTE₀/DTE) over holding period:
+    // accelFactor = 2√DTE_entry / (√DTE_entry + √DTE_exit)
+    const dteExitSafe = Math.max(dteExit, 0.25);
+    const accelFactor = dteEntry > 0 && daysHeld > 0
+      ? (2 * Math.sqrt(dteEntry)) / (Math.sqrt(dteEntry) + Math.sqrt(dteExitSafe))
+      : 1;
+
+    const thetaVal  = parseFloat(form.theta);
+    const deltaVal  = parseFloat(form.delta);
+    const sizeVal   = parseFloat(form.size) || 1;
+
+    const thetaSimple = isNaN(thetaVal) ? 0 : thetaVal * daysHeld * sizeVal;
+    const thetaPnl    = isNaN(thetaVal) ? 0 : thetaVal * daysHeld * accelFactor * sizeVal;
+    const deltaSens   = isNaN(deltaVal) ? 0 : deltaVal * sizeVal;
+
+    setOptionsCalc({ daysHeld, dteEntry, dteExit, accelFactor, thetaPnl, thetaSimple, deltaSens });
+  }, [
+    isOptions,
+    form.entryAt, form.exitAt, form.expirationDate,
+    form.theta, form.delta, form.size,
+  ]);
 
   useEffect(() => {
     if (!autoCalc) return;
@@ -586,6 +641,106 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
                 </div>
               </div>
             </div>
+
+            {/* ── Options P&L breakdown ── */}
+            {optionsCalc && (form.theta !== "" || form.delta !== "") && (
+              <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-4 space-y-2.5">
+                <p className="text-[10px] text-purple-400 uppercase tracking-wider font-mono">
+                  Estimated P&L breakdown
+                </p>
+
+                {/* Theta row */}
+                {form.theta !== "" && !isNaN(parseFloat(form.theta)) && (
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs text-fg-subtle">
+                        <span className="w-5 text-center font-bold text-purple-400 text-sm">Θ</span>
+                        <span>Theta decay</span>
+                        {optionsCalc.daysHeld === 0 && (
+                          <span className="text-[10px] text-fg-subtle/60">(enter exit date)</span>
+                        )}
+                      </div>
+                      <span className={`text-sm font-bold font-mono tabular-nums ${
+                        optionsCalc.thetaPnl >= 0 ? "text-emerald-400" : "text-red-400"
+                      }`}>
+                        {optionsCalc.thetaPnl >= 0 ? "+" : ""}
+                        {formatCurrency(optionsCalc.thetaPnl)}
+                      </span>
+                    </div>
+                    {optionsCalc.daysHeld > 0 && (
+                      <div className="flex items-center justify-between mt-0.5 pl-7">
+                        <span className="text-[10px] text-fg-subtle font-mono">
+                          {optionsCalc.daysHeld}d held
+                          {optionsCalc.dteEntry > 0 && (
+                            <> · DTE {optionsCalc.dteEntry}→{optionsCalc.dteExit}</>
+                          )}
+                          {optionsCalc.accelFactor > 1.001 && (
+                            <> · <span className="text-purple-400/70">{optionsCalc.accelFactor.toFixed(2)}× accel</span></>
+                          )}
+                        </span>
+                        {Math.abs(optionsCalc.thetaSimple - optionsCalc.thetaPnl) > 0.01 && (
+                          <span className="text-[10px] text-fg-subtle/60 font-mono">
+                            linear: {formatCurrency(optionsCalc.thetaSimple)}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Delta sensitivity row */}
+                {form.delta !== "" && !isNaN(parseFloat(form.delta)) && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-fg-subtle">
+                      <span className="w-5 text-center font-bold text-purple-400 text-sm">Δ</span>
+                      <span>Delta sensitivity</span>
+                    </div>
+                    <span className="text-sm font-bold font-mono text-purple-400 tabular-nums">
+                      {optionsCalc.deltaSens >= 0 ? "+" : ""}
+                      {formatCurrency(optionsCalc.deltaSens)}
+                      <span className="text-[10px] font-normal text-fg-subtle">/pt</span>
+                    </span>
+                  </div>
+                )}
+
+                {/* Decomposition: when we have net P&L + theta */}
+                {form.netPnl !== "" &&
+                  !isNaN(parseFloat(form.netPnl)) &&
+                  form.theta !== "" &&
+                  !isNaN(parseFloat(form.theta)) &&
+                  optionsCalc.daysHeld > 0 && (() => {
+                    const netVal      = parseFloat(form.netPnl);
+                    const deltaContrib = netVal - optionsCalc.thetaPnl;
+                    return (
+                      <>
+                        <div className="h-px bg-white/8" />
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs text-fg-subtle">
+                            <span className="w-5 text-center font-bold text-purple-400 text-sm">Δ</span>
+                            <span>Price / vol / other</span>
+                          </div>
+                          <span className={`text-sm font-bold font-mono tabular-nums ${
+                            deltaContrib >= 0 ? "text-emerald-400" : "text-red-400"
+                          }`}>
+                            {deltaContrib >= 0 ? "+" : ""}
+                            {formatCurrency(deltaContrib)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-white/8">
+                          <span className="text-xs font-semibold text-fg-muted font-mono">Net P&L</span>
+                          <span className={`text-base font-black font-mono tabular-nums ${
+                            netVal >= 0 ? "text-emerald-400" : "text-red-400"
+                          }`}>
+                            {netVal >= 0 ? "+" : ""}
+                            {formatCurrency(netVal)}
+                          </span>
+                        </div>
+                      </>
+                    );
+                  })()
+                }
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -250,7 +250,7 @@ export default async function TradeDetailPage({ params }: PageProps) {
                   ["Δ Delta", trade.delta],
                   ["Γ Gamma", trade.gamma],
                   ["Θ Theta", trade.theta],
-                  ["V Vega", trade.vega],
+                  ["V Vega",  trade.vega],
                 ]
                   .filter(([, v]) => v != null)
                   .map(([label, value]) => (
@@ -261,7 +261,6 @@ export default async function TradeDetailPage({ params }: PageProps) {
                           ? "text-red-400"
                           : "text-purple-400"
                       }`}>
-                        {Number(value) >= 0 && label !== "Θ Theta" ? "" : ""}
                         {Number(value).toFixed(4)}
                       </div>
                     </div>
@@ -269,6 +268,93 @@ export default async function TradeDetailPage({ params }: PageProps) {
               </div>
             </div>
           )}
+
+          {/* Theta / Delta breakdown */}
+          {trade.theta != null && trade.entryAt && (() => {
+            const MS = 86_400_000;
+            const entryDate  = new Date(trade.entryAt);
+            const exitDate   = trade.exitAt ? new Date(trade.exitAt) : new Date();
+            const expiryDate = trade.expirationDate ? new Date(String(trade.expirationDate)) : null;
+
+            const daysHeld = Math.max(0, Math.round((exitDate.getTime() - entryDate.getTime()) / MS));
+            const dteEntry = expiryDate
+              ? Math.max(0, Math.round((expiryDate.getTime() - entryDate.getTime()) / MS)) : 0;
+            const dteExit  = expiryDate
+              ? Math.max(0, Math.round((expiryDate.getTime() - exitDate.getTime())  / MS)) : 0;
+
+            const dteExitSafe  = Math.max(dteExit, 0.25);
+            const accelFactor  = dteEntry > 0 && daysHeld > 0
+              ? (2 * Math.sqrt(dteEntry)) / (Math.sqrt(dteEntry) + Math.sqrt(dteExitSafe))
+              : 1;
+
+            const theta      = Number(trade.theta);
+            const size       = trade.size ?? 1;
+            const thetaSimple = theta * daysHeld * size;
+            const thetaPnl    = theta * daysHeld * accelFactor * size;
+            const netPnl      = trade.netPnl ?? null;
+            const deltaContrib = netPnl != null ? netPnl - thetaPnl : null;
+            const deltaSens   = trade.delta != null ? Number(trade.delta) * size : null;
+
+            return (
+              <div className="mt-4 pt-4 border-t border-white/5">
+                <div className="text-[10px] text-fg-subtle font-mono uppercase tracking-wider mb-3">
+                  P&L breakdown
+                </div>
+                <div className="space-y-2">
+                  {/* Theta */}
+                  <div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-fg-subtle font-mono text-xs flex items-center gap-1.5">
+                        <span className="text-purple-400">Θ</span> Theta decay
+                      </span>
+                      <span className={`font-bold font-mono tabular-nums ${thetaPnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                        {thetaPnl >= 0 ? "+" : ""}{formatCurrency(thetaPnl)}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-fg-subtle font-mono mt-0.5 pl-4">
+                      {daysHeld}d held
+                      {dteEntry > 0 && <> · DTE {dteEntry}→{dteExit}</>}
+                      {accelFactor > 1.001 && <> · <span className="text-purple-400/70">{accelFactor.toFixed(2)}× accel</span></>}
+                      {Math.abs(thetaSimple - thetaPnl) > 0.01 && (
+                        <span className="ml-2 opacity-60">(linear: {formatCurrency(thetaSimple)})</span>
+                      )}
+                    </div>
+                  </div>
+                  {/* Delta sensitivity */}
+                  {deltaSens !== null && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-fg-subtle font-mono text-xs flex items-center gap-1.5">
+                        <span className="text-purple-400">Δ</span> Delta sensitivity
+                      </span>
+                      <span className="font-bold font-mono text-purple-400 tabular-nums">
+                        {deltaSens >= 0 ? "+" : ""}{formatCurrency(deltaSens)}
+                        <span className="text-[10px] font-normal text-fg-subtle">/pt</span>
+                      </span>
+                    </div>
+                  )}
+                  {/* Decomposition when net P&L exists */}
+                  {deltaContrib !== null && (
+                    <>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-fg-subtle font-mono text-xs flex items-center gap-1.5">
+                          <span className="text-purple-400">Δ</span> Price / vol / other
+                        </span>
+                        <span className={`font-bold font-mono tabular-nums ${deltaContrib >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                          {deltaContrib >= 0 ? "+" : ""}{formatCurrency(deltaContrib)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-white/8 text-sm">
+                        <span className="text-fg-muted font-mono text-xs font-semibold">Net P&L</span>
+                        <span className={`font-black font-mono tabular-nums ${(netPnl ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                          {(netPnl ?? 0) >= 0 ? "+" : ""}{formatCurrency(netPnl ?? 0)}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       )}
 
