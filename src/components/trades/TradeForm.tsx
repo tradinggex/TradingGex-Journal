@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { EMOTIONS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/formatters";
 import { createTrade, updateTrade } from "@/actions/trade.actions";
 import { useTranslation } from "@/lib/i18n/context";
+import { ScreenshotGallery } from "@/components/trades/ScreenshotGallery";
+import { Camera, X as XIcon } from "lucide-react";
 
 interface Instrument {
   id: string;
@@ -70,6 +72,7 @@ interface TradeFormProps {
     openInterest: number | null;
     impliedVolatility: number | null;
   };
+  editScreenshots?: { id: string; url: string; label: string | null }[];
 }
 
 const inputCls =
@@ -84,7 +87,7 @@ function toDatetimeLocal(d: Date | string | null | undefined): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormProps) {
+export function TradeForm({ instruments, setups, tags, editTrade, editScreenshots }: TradeFormProps) {
   const t = useTranslation();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -130,6 +133,10 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
   const [isOptions, setIsOptions] = useState(!!editTrade?.optionType);
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTagIds);
   const [autoCalc, setAutoCalc] = useState(true);
+  const [dragging, setDragging] = useState(false);
+
+  const pendingPreviewsRef = useRef<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<{ file: File; preview: string }[]>([]);
 
   const selectedInstrument = instruments.find((i) => i.id === form.instrumentId);
 
@@ -197,7 +204,6 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
     const inst = selectedInstrument;
 
     if (inst && !isNaN(entry) && !isNaN(exit) && !isNaN(size)) {
-      const ticks = Math.abs(exit - entry) / inst.tickSize;
       const direction = form.direction === "LONG" ? 1 : -1;
       const dirTicks = direction * (exit - entry) / inst.tickSize;
       const gross = dirTicks * inst.tickValue * size;
@@ -212,16 +218,54 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
       if (!isNaN(sl) && sl !== entry) {
         const riskTicks = Math.abs(entry - sl) / inst.tickSize;
         const riskAmt = riskTicks * inst.tickValue * size;
-        const rMult = (gross - fees) / riskAmt;
         setForm((f) => ({
           ...f,
           riskAmount: riskAmt.toFixed(2),
-          rMultiple: rMult.toFixed(2),
+          rMultiple: (net / riskAmt).toFixed(2),
         }));
+      } else {
+        // No stop loss: derive rMultiple from manually entered riskAmount
+        const manualRisk = parseFloat(form.riskAmount);
+        if (!isNaN(manualRisk) && manualRisk > 0 && !isNaN(net)) {
+          setForm((f) => ({ ...f, rMultiple: (net / manualRisk).toFixed(2) }));
+        }
       }
-      void ticks;
     }
-  }, [form.entryPrice, form.exitPrice, form.size, form.stopLoss, form.fees, form.direction, selectedInstrument, autoCalc]);
+  }, [form.entryPrice, form.exitPrice, form.size, form.stopLoss, form.fees, form.direction, selectedInstrument, autoCalc, form.riskAmount]);
+
+  useEffect(() => {
+    const ref = pendingPreviewsRef.current;
+    return () => { ref.forEach((u) => URL.revokeObjectURL(u)); };
+  }, []);
+
+  function addPendingFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) addFiles(e.target.files);
+    e.target.value = "";
+  }
+
+  function removePending(index: number) {
+    setPendingFiles((prev) => {
+      URL.revokeObjectURL(prev[index].preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  }
+
+  function addFiles(files: FileList | File[]) {
+    const items = Array.from(files)
+      .filter((f) => f.type.startsWith("image/"))
+      .map((f) => {
+        const preview = URL.createObjectURL(f);
+        pendingPreviewsRef.current.push(preview);
+        return { file: f, preview };
+      });
+    if (items.length) setPendingFiles((prev) => [...prev, ...items]);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  }
 
   function toggleTag(id: string) {
     setSelectedTags((prev) =>
@@ -278,8 +322,17 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
           console.error("[TradeForm] save error:", res?.error);
           toast.error(msg);
         } else {
+          const newId = "id" in res ? (res as unknown as { id: string }).id : null;
+          if (!isEditing && pendingFiles.length > 0 && newId) {
+            for (const { file } of pendingFiles) {
+              const fd = new FormData();
+              fd.append("file", file);
+              fd.append("tradeId", newId);
+              try { await fetch("/api/upload", { method: "POST", body: fd }); } catch {}
+            }
+          }
           toast.success(isEditing ? t("trades.toasts.updated") : t("trades.toasts.registered"));
-          router.push(isEditing ? `/trades/${editTrade!.id}` : "/trades");
+          router.push(isEditing ? `/trades/${editTrade!.id}` : `/trades/${newId ?? ""}`);
         }
       } catch (err) {
         console.error("[TradeForm] unexpected:", err);
@@ -806,11 +859,10 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
             <input
               type="number"
               step="any"
-              className={`${inputCls} ${autoCalc ? "opacity-60" : ""}`}
+              className={inputCls}
               placeholder="0.00"
               value={form.riskAmount}
               onChange={(e) => setForm((f) => ({ ...f, riskAmount: e.target.value }))}
-              readOnly={autoCalc}
             />
           </div>
           <div>
@@ -818,7 +870,7 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
             <input
               type="number"
               step="any"
-              className={`${inputCls} ${autoCalc ? "opacity-60" : ""} ${
+              className={`${inputCls} ${
                 form.rMultiple
                   ? parseFloat(form.rMultiple) >= 0
                     ? "text-green-400"
@@ -828,7 +880,6 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
               placeholder="0.00"
               value={form.rMultiple}
               onChange={(e) => setForm((f) => ({ ...f, rMultiple: e.target.value }))}
-              readOnly={autoCalc}
             />
           </div>
           <div>
@@ -857,13 +908,12 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
                 key={em.value}
                 type="button"
                 onClick={() => setForm((f) => ({ ...f, emotion: f.emotion === em.value ? "" : em.value }))}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-all ${
-                  form.emotion === em.value
-                    ? "bg-purple-500/15 text-purple-400 border-purple-500/40"
-                    : "border-[var(--border)] text-fg-subtle hover:text-fg-muted"
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-all"
+                style={form.emotion === em.value
+                  ? { backgroundColor: `${em.color}20`, color: em.color, borderColor: `${em.color}60` }
+                  : { borderColor: "var(--border)", color: "var(--fg-subtle)" }}
               >
-                <span>{em.emoji}</span>
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: em.color }} />
                 <span>{em.label}</span>
               </button>
             ))}
@@ -950,6 +1000,58 @@ export function TradeForm({ instruments, setups, tags, editTrade }: TradeFormPro
             ))}
           </div>
         </div>
+      )}
+
+      {/* ── Screenshots ── */}
+      {!isEditing ? (
+        <div className="card p-5">
+          <div className={sectionTitle}>{t("trades.screenshots.title", { count: pendingFiles.length })}</div>
+
+          {/* Thumbnails */}
+          {pendingFiles.length > 0 && (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-4">
+              {pendingFiles.map((f, i) => (
+                <div
+                  key={i}
+                  className="relative rounded-lg overflow-hidden bg-surface2 group"
+                  style={{ paddingBottom: "56.25%" }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={f.preview} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all" />
+                  <button
+                    type="button"
+                    onClick={() => removePending(i)}
+                    className="absolute top-1 right-1 bg-black/70 hover:bg-black text-white w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <XIcon size={10} strokeWidth={2.5} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Drop zone */}
+          <label
+            className={`cursor-pointer flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 transition-all ${
+              dragging
+                ? "border-purple-500 bg-purple-500/8"
+                : "border-[var(--border)] hover:border-purple-500/50 hover:bg-surface2"
+            }`}
+            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+          >
+            <Camera size={22} strokeWidth={1.5} className={dragging ? "text-purple-400" : "text-fg-subtle/50"} />
+            <div className="text-center">
+              <span className="text-sm font-semibold text-fg-muted">{t("trades.screenshots.add")}</span>
+              <p className="text-xs text-fg-subtle mt-0.5">{t("trades.screenshots.dropHint")}</p>
+            </div>
+            <input type="file" accept="image/*" multiple className="hidden" onChange={addPendingFiles} />
+          </label>
+        </div>
+      ) : (
+        <ScreenshotGallery tradeId={editTrade!.id} screenshots={editScreenshots ?? []} />
       )}
 
       {/* ── Actions ── */}

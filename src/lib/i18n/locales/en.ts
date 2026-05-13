@@ -227,10 +227,11 @@ export const en = {
  },
  screenshots: {
  title:"Screenshots ({count})",
- add:"+ Add",
+ add:"Add screenshots",
  uploading:"Uploading...",
  noScreenshots:"No screenshots",
  hint: 'Click"+ Add" to upload images',
+ dropHint:"Click to select or drag & drop images here",
  confirmDelete:"Delete this screenshot?",
  uploaded:"Screenshot(s) uploaded",
  uploadError:"Error uploading image",

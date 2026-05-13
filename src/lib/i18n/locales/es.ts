@@ -229,10 +229,11 @@ export const es: Dict = {
  },
  screenshots: {
  title:"Capturas ({count})",
- add:"+ Agregar",
+ add:"Agregar capturas",
  uploading:"Subiendo...",
  noScreenshots:"Sin capturas",
  hint: 'Haz clic en"+ Agregar" para subir imágenes',
+ dropHint:"Haz clic para seleccionar o arrastra imágenes aquí",
  confirmDelete:"¿Eliminar esta captura?",
  uploaded:"Captura(s) subida(s)",
  uploadError:"Error al subir la imagen",

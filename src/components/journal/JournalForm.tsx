@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { EMOTIONS } from "@/lib/constants";
 import { createJournalEntry, updateJournalEntry } from "@/actions/journal.actions";
 import { useTranslation } from "@/lib/i18n/context";
+import { ScreenshotGallery } from "@/components/trades/ScreenshotGallery";
+import { Camera, X as XIcon } from "lucide-react";
 
 interface JournalFormProps {
   editEntry?: {
@@ -20,6 +22,7 @@ interface JournalFormProps {
     improvements: string | null;
     gratitude: string | null;
   };
+  editScreenshots?: { id: string; url: string; label: string | null }[];
   defaultDate?: string;
   marketConditions: string[];
 }
@@ -28,11 +31,49 @@ const inputCls =
   "bg-surface2 border border-[var(--border)] text-foreground rounded-lg px-3 py-2 text-sm focus:border-purple-500/50 focus:outline-none w-full placeholder:text-fg-subtle";
 const labelCls = "text-xs text-fg-subtle mb-1 block";
 
-export function JournalForm({ editEntry, defaultDate, marketConditions }: JournalFormProps) {
+export function JournalForm({ editEntry, editScreenshots, defaultDate, marketConditions }: JournalFormProps) {
   const t = useTranslation();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!editEntry;
+
+  const pendingPreviewsRef = useRef<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<{ file: File; preview: string }[]>([]);
+  const [dragging, setDragging] = useState(false);
+
+  useEffect(() => {
+    const ref = pendingPreviewsRef.current;
+    return () => { ref.forEach((u) => URL.revokeObjectURL(u)); };
+  }, []);
+
+  function addFiles(files: FileList | File[]) {
+    const items = Array.from(files)
+      .filter((f) => f.type.startsWith("image/"))
+      .map((f) => {
+        const preview = URL.createObjectURL(f);
+        pendingPreviewsRef.current.push(preview);
+        return { file: f, preview };
+      });
+    if (items.length) setPendingFiles((prev) => [...prev, ...items]);
+  }
+
+  function addPendingFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) addFiles(e.target.files);
+    e.target.value = "";
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  }
+
+  function removePending(index: number) {
+    setPendingFiles((prev) => {
+      URL.revokeObjectURL(prev[index].preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  }
 
   const today = defaultDate ?? new Date().toISOString().slice(0, 10);
 
@@ -73,11 +114,20 @@ export function JournalForm({ editEntry, defaultDate, marketConditions }: Journa
           console.error("[JournalForm] save error:", res?.error);
           toast.error(msg);
         } else {
+          if (!isEditing && pendingFiles.length > 0 && "id" in res) {
+            const newId = (res as { id: string }).id;
+            for (const { file } of pendingFiles) {
+              const fd = new FormData();
+              fd.append("file", file);
+              fd.append("journalEntryId", newId);
+              try { await fetch("/api/upload", { method: "POST", body: fd }); } catch {}
+            }
+          }
           toast.success(isEditing ? t("journal.toasts.updated") : t("journal.toasts.saved"));
           if (isEditing) {
             router.push(`/journal/${editEntry!.id}`);
           } else if ("id" in res) {
-            router.push(`/journal/${res.id}`);
+            router.push(`/journal/${(res as { id: string }).id}`);
           }
         }
       } catch (err) {
@@ -147,13 +197,12 @@ export function JournalForm({ editEntry, defaultDate, marketConditions }: Journa
                   ...f,
                   emotionalState: f.emotionalState === em.value ? "" : em.value,
                 }))}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-all ${
-                  form.emotionalState === em.value
-                    ? "bg-purple-500/15 text-purple-400 border-purple-500/40"
-                    : "border-[var(--border)] text-fg-subtle hover:text-fg-muted"
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-all"
+                style={form.emotionalState === em.value
+                  ? { backgroundColor: `${em.color}20`, color: em.color, borderColor: `${em.color}60` }
+                  : { borderColor: "var(--border)", color: "var(--fg-subtle)" }}
               >
-                <span>{em.emoji}</span>
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: em.color }} />
                 <span>{em.label}</span>
               </button>
             ))}
@@ -239,6 +288,60 @@ export function JournalForm({ editEntry, defaultDate, marketConditions }: Journa
           </div>
         </div>
       </div>
+
+      {/* Screenshots */}
+      {!isEditing ? (
+        <div className="card p-5">
+          <div className="text-xs text-fg-subtle uppercase tracking-wider font-mono mb-4 flex items-center gap-2 after:flex-1 after:h-px after:bg-surface3">
+            {t("trades.screenshots.title", { count: pendingFiles.length })}
+          </div>
+
+          {/* Thumbnails */}
+          {pendingFiles.length > 0 && (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-4">
+              {pendingFiles.map((f, i) => (
+                <div
+                  key={i}
+                  className="relative rounded-lg overflow-hidden bg-surface2 group"
+                  style={{ paddingBottom: "56.25%" }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={f.preview} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all" />
+                  <button
+                    type="button"
+                    onClick={() => removePending(i)}
+                    className="absolute top-1 right-1 bg-black/70 hover:bg-black text-white w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <XIcon size={10} strokeWidth={2.5} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Drop zone */}
+          <label
+            className={`cursor-pointer flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 transition-all ${
+              dragging
+                ? "border-purple-500 bg-purple-500/8"
+                : "border-[var(--border)] hover:border-purple-500/50 hover:bg-surface2"
+            }`}
+            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+          >
+            <Camera size={22} strokeWidth={1.5} className={dragging ? "text-purple-400" : "text-fg-subtle/50"} />
+            <div className="text-center">
+              <span className="text-sm font-semibold text-fg-muted">{t("trades.screenshots.add")}</span>
+              <p className="text-xs text-fg-subtle mt-0.5">{t("trades.screenshots.dropHint")}</p>
+            </div>
+            <input type="file" accept="image/*" multiple className="hidden" onChange={addPendingFiles} />
+          </label>
+        </div>
+      ) : (
+        <ScreenshotGallery journalEntryId={editEntry!.id} screenshots={editScreenshots ?? []} />
+      )}
 
       {/* Actions */}
       <div className="flex items-center gap-4 pb-4">
