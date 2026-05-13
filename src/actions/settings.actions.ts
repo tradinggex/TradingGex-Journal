@@ -1,11 +1,18 @@
 "use server";
 
+import { z } from "zod";
 import { supabase } from "@/lib/supabase";
 import { instrumentSchema, setupSchema } from "@/lib/validations/settings.schema";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { isLocale } from "@/lib/i18n";
+import { requireUser } from "@/lib/session";
 import type { Locale } from "@/lib/i18n";
+
+const tagSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido").max(50).trim(),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Color inválido").default("#6366f1"),
+});
 
 export async function setLocale(locale: Locale) {
   if (!isLocale(locale)) return;
@@ -21,6 +28,7 @@ export async function setLocale(locale: Locale) {
 
 // --- Instruments ---
 export async function createInstrument(data: unknown) {
+  await requireUser();
   const parsed = instrumentSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
   const id = crypto.randomUUID();
@@ -32,6 +40,7 @@ export async function createInstrument(data: unknown) {
 }
 
 export async function updateInstrument(id: string, data: unknown) {
+  await requireUser();
   const parsed = instrumentSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
   const { error } = await supabase
@@ -44,12 +53,14 @@ export async function updateInstrument(id: string, data: unknown) {
 }
 
 export async function deleteInstrument(id: string) {
+  await requireUser();
   await supabase.from("Instrument").delete().eq("id", id);
   revalidatePath("/settings");
   return { success: true };
 }
 
 export async function toggleInstrument(id: string, isActive: boolean) {
+  await requireUser();
   await supabase.from("Instrument").update({ isActive, updatedAt: new Date().toISOString() }).eq("id", id);
   revalidatePath("/settings");
   return { success: true };
@@ -57,6 +68,7 @@ export async function toggleInstrument(id: string, isActive: boolean) {
 
 // --- Setups ---
 export async function createSetup(data: unknown) {
+  await requireUser();
   const parsed = setupSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
   const id = crypto.randomUUID();
@@ -68,6 +80,7 @@ export async function createSetup(data: unknown) {
 }
 
 export async function updateSetup(id: string, data: unknown) {
+  await requireUser();
   const parsed = setupSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
   const { error } = await supabase
@@ -80,6 +93,7 @@ export async function updateSetup(id: string, data: unknown) {
 }
 
 export async function deleteSetup(id: string) {
+  await requireUser();
   await supabase.from("Setup").delete().eq("id", id);
   revalidatePath("/settings");
   return { success: true };
@@ -87,14 +101,18 @@ export async function deleteSetup(id: string) {
 
 // --- Tags ---
 export async function createTag(name: string, color: string) {
+  await requireUser();
+  const parsed = tagSchema.safeParse({ name, color });
+  if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
   const id = crypto.randomUUID();
-  const { error } = await supabase.from("Tag").insert({ id, name, color });
+  const { error } = await supabase.from("Tag").insert({ id, ...parsed.data });
   if (error) return { error: "Error al crear etiqueta" };
   revalidatePath("/settings");
   return { success: true, id };
 }
 
 export async function deleteTag(id: string) {
+  await requireUser();
   await supabase.from("Tag").delete().eq("id", id);
   revalidatePath("/settings");
   return { success: true };

@@ -18,6 +18,7 @@ import {
   createTag,
   deleteTag,
 } from "@/actions/settings.actions";
+import { X as XIcon, Mail, Bug, Lightbulb, Copy, Check } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface Instrument {
@@ -321,7 +322,7 @@ function InstrumentsTab({ instruments }: { instruments: Instrument[] }) {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <button className={btnSecondary} onClick={() => startEdit(ins)}>{t("common.edit")}</button>
-                        <button className={btnDanger} onClick={() => handleDelete(ins.id, ins.symbol)}>✕</button>
+                        <button className={btnDanger} onClick={() => handleDelete(ins.id, ins.symbol)}><XIcon size={12} strokeWidth={2.5} /></button>
                       </div>
                     </td>
                   </tr>
@@ -462,7 +463,7 @@ function SetupsTab({ setups }: { setups: Setup[] }) {
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
                 <button className={btnSecondary} onClick={() => startEdit(s)}>{t("common.edit")}</button>
-                <button className={btnDanger} onClick={() => handleDelete(s.id, s.name)}>✕</button>
+                <button className={btnDanger} onClick={() => handleDelete(s.id, s.name)}><XIcon size={12} strokeWidth={2.5} /></button>
               </div>
             </div>
           ))
@@ -546,9 +547,9 @@ function TagsTab({ tags }: { tags: Tag[] }) {
               <span>{tag.name}</span>
               <button
                 onClick={() => handleDelete(tag.id, tag.name)}
-                className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/20 text-[10px] transition-colors"
+                className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/20 transition-colors"
               >
-                ✕
+                <XIcon size={10} strokeWidth={2.5} />
               </button>
             </div>
           ))
@@ -612,8 +613,97 @@ function LanguageTab() {
   );
 }
 
+// ── Support Tab ────────────────────────────────────────────────────────────
+const SUPPORT_EMAIL = "tradinggex@gmail.com";
+
+function SupportTab() {
+  const t = useTranslation();
+  const [copied, setCopied] = useState(false);
+
+  function copyEmail() {
+    navigator.clipboard.writeText(SUPPORT_EMAIL).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function mailto(subject: string) {
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`;
+  }
+
+  return (
+    <div className="space-y-4 max-w-xl">
+      {/* Contact */}
+      <div className="card p-5 space-y-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
+            <Mail size={15} className="text-purple-400" strokeWidth={1.75} />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-foreground">{t("settings.support.contactTitle")}</div>
+            <div className="text-xs text-fg-subtle mt-0.5">{t("settings.support.contactDesc")}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 bg-surface2 border border-[var(--border)] rounded-lg px-3 py-2">
+          <span className="text-xs text-fg-subtle shrink-0">{t("settings.support.emailLabel")}:</span>
+          <span className="text-sm font-mono text-foreground flex-1 select-all">{SUPPORT_EMAIL}</span>
+          <button
+            onClick={copyEmail}
+            className="flex items-center gap-1.5 text-[11px] font-medium text-purple-400 hover:text-purple-300 transition-colors shrink-0"
+          >
+            {copied ? (
+              <><Check size={12} strokeWidth={2.5} />{t("settings.support.emailCopied")}</>
+            ) : (
+              <><Copy size={12} strokeWidth={2} />{t("settings.support.emailCopy")}</>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Bug report */}
+      <div className="card p-5 space-y-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-red-500/12 flex items-center justify-center shrink-0">
+            <Bug size={15} className="text-red-400" strokeWidth={1.75} />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-foreground">{t("settings.support.bugsTitle")}</div>
+            <div className="text-xs text-fg-subtle mt-0.5">{t("settings.support.bugsDesc")}</div>
+          </div>
+        </div>
+        <button
+          onClick={() => mailto("Bug report — TradingGex Journal")}
+          className="text-xs font-semibold px-4 py-2 rounded-lg border border-red-500/25 text-red-400 hover:bg-red-500/8 transition-colors"
+        >
+          {t("settings.support.bugsButton")}
+        </button>
+      </div>
+
+      {/* Feature suggestion */}
+      <div className="card p-5 space-y-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-amber-500/12 flex items-center justify-center shrink-0">
+            <Lightbulb size={15} className="text-amber-400" strokeWidth={1.75} />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-foreground">{t("settings.support.featureTitle")}</div>
+            <div className="text-xs text-fg-subtle mt-0.5">{t("settings.support.featureDesc")}</div>
+          </div>
+        </div>
+        <button
+          onClick={() => mailto("Feature suggestion — TradingGex Journal")}
+          className="text-xs font-semibold px-4 py-2 rounded-lg border border-amber-500/25 text-amber-400 hover:bg-amber-500/8 transition-colors"
+        >
+          {t("settings.support.featureButton")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Main SettingsTabs ──────────────────────────────────────────────────────
-type TabId = "instruments" | "setups" | "tags" | "language";
+type TabId = "instruments" | "setups" | "tags" | "language" | "support";
 
 export function SettingsTabs({ instruments, setups, tags }: SettingsTabsProps) {
   const t = useTranslation();
@@ -624,6 +714,7 @@ export function SettingsTabs({ instruments, setups, tags }: SettingsTabsProps) {
     { id: "setups", label: t("settings.tabs.setups") },
     { id: "tags", label: t("settings.tabs.tags") },
     { id: "language", label: t("settings.tabs.language") },
+    { id: "support", label: t("settings.tabs.support") },
   ];
 
   return (
@@ -652,6 +743,7 @@ export function SettingsTabs({ instruments, setups, tags }: SettingsTabsProps) {
       {activeTab === "setups" && <SetupsTab setups={setups} />}
       {activeTab === "tags" && <TagsTab tags={tags} />}
       {activeTab === "language" && <LanguageTab />}
+      {activeTab === "support" && <SupportTab />}
     </div>
   );
 }

@@ -1,11 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, SCREENSHOTS_BUCKET } from "@/lib/supabase";
+import { getSession } from "@/lib/session";
+
+const ALLOWED_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+]);
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export function OPTIONS() {
   return new NextResponse(null, { status: 204 });
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
@@ -16,8 +30,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing file or entity ID" }, { status: 400 });
     }
 
-    const ext = file.name.split(".").pop() ?? "jpg";
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    // File type validation — check MIME type, not just extension
+    if (!ALLOWED_MIME_TYPES.has(file.type)) {
+      return NextResponse.json({ error: "File type not allowed. Only JPEG, PNG, WebP, and GIF are accepted." }, { status: 400 });
+    }
+
+    // File size validation
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "File too large. Maximum size is 10 MB." }, { status: 400 });
+    }
+
+    // Verify the trade or journal entry belongs to the logged-in user
+    if (tradeId) {
+      const { data: trade } = await supabase
+        .from("Trade")
+        .select("id")
+        .eq("id", tradeId)
+        .eq("userId", session.userId)
+        .maybeSingle();
+      if (!trade) {
+        return NextResponse.json({ error: "Trade not found" }, { status: 404 });
+      }
+    } else if (journalEntryId) {
+      const { data: entry } = await supabase
+        .from("JournalEntry")
+        .select("id")
+        .eq("id", journalEntryId)
+        .eq("userId", session.userId)
+        .maybeSingle();
+      if (!entry) {
+        return NextResponse.json({ error: "Journal entry not found" }, { status: 404 });
+      }
+    }
+
+    const ext = file.type.split("/")[1] ?? "jpg";
+    const filename = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
     const folder = tradeId ? `trade-${tradeId}` : `journal-${journalEntryId}`;
     const storagePath = `${folder}/${filename}`;
 
@@ -25,7 +72,7 @@ export async function POST(request: NextRequest) {
     const { error: uploadError } = await supabase.storage
       .from(SCREENSHOTS_BUCKET)
       .upload(storagePath, Buffer.from(bytes), {
-        contentType: file.type || "image/jpeg",
+        contentType: file.type,
         upsert: false,
       });
 
