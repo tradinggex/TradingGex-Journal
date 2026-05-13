@@ -16,7 +16,7 @@ export function isLocale(value: string): value is Locale {
 export async function getLocale(): Promise<Locale> {
   const cookieStore = await cookies();
   const value = cookieStore.get("NEXT_LOCALE")?.value ?? "";
-  return isLocale(value) ? value : "es";
+  return isLocale(value) ? value : "en";
 }
 
 export async function getDictionary(locale?: Locale): Promise<Dict> {

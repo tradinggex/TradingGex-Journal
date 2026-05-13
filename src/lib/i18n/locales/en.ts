@@ -53,6 +53,10 @@ export const en = {
  },
  auth: {
  subtitle:"Trading Journal",
+ googleLogin:"Continue with Google",
+ googleRegister:"Sign up with Google",
+ or:"or",
+ oauthError:"Error signing in with Google. Please try again.",
  login: {
  title:"Sign in",
  description:"Access your account to view your trades",

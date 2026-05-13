@@ -55,6 +55,10 @@ export const es: Dict = {
  },
  auth: {
  subtitle:"Trading Journal",
+ googleLogin:"Continuar con Google",
+ googleRegister:"Registrarse con Google",
+ or:"o",
+ oauthError:"Error al iniciar sesión con Google. Intenta de nuevo.",
  login: {
  title:"Iniciar sesión",
  description:"Accede a tu cuenta para ver tus operaciones",
