@@ -11,6 +11,7 @@ import {
   Cell,
 } from "recharts";
 import { formatCurrency } from "@/lib/formatters";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface MonthlyChartProps {
   data: { month: string; netPnl: number; count: number; wins: number }[];
@@ -19,9 +20,11 @@ interface MonthlyChartProps {
 function CustomTooltip({
   active,
   payload,
+  tradesLabel,
 }: {
   active?: boolean;
   payload?: { payload: { month: string; netPnl: number; count: number; wins: number } }[];
+  tradesLabel: string;
 }) {
   if (active && payload && payload.length) {
     const d = payload[0].payload;
@@ -32,7 +35,7 @@ function CustomTooltip({
         <div className={`font-mono font-bold ${isPos ? "text-green-400" : "text-red-400"}`}>
           {formatCurrency(d.netPnl)}
         </div>
-        <div className="text-fg-subtle font-mono">{d.count} trades</div>
+        <div className="text-fg-subtle font-mono">{d.count} {tradesLabel}</div>
         <div className="text-fg-subtle font-mono">
           {d.wins}W / {d.count - d.wins}L
         </div>
@@ -43,10 +46,12 @@ function CustomTooltip({
 }
 
 export function MonthlyChart({ data }: MonthlyChartProps) {
+  const t = useTranslation();
+
   if (data.length === 0) {
     return (
       <div className="h-48 flex items-center justify-center text-fg-subtle text-sm font-mono">
-        Sin datos mensuales
+        {t("analytics.noMonthlyData")}
       </div>
     );
   }
@@ -68,7 +73,7 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
           tickFormatter={(v) => `$${v}`}
           width={55}
         />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<CustomTooltip tradesLabel={t("analytics.tradesLabel")} />} />
         <Bar dataKey="netPnl" radius={[3, 3, 0, 0]}>
           {data.map((entry, index) => (
             <Cell

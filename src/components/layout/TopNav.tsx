@@ -7,13 +7,16 @@ import { cn } from "@/lib/utils";
 import { logout } from "@/actions/auth";
 import { useTranslation } from "@/lib/i18n/context";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2, CreditCard } from "lucide-react";
 
 interface TopNavProps {
   userEmail?: string;
   userName?: string;
+  trialDaysLeft?: number;
+  subscriptionStatus?: string | null;
 }
 
-export function TopNav({ userEmail, userName }: TopNavProps) {
+export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus }: TopNavProps) {
   const t = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
@@ -30,12 +33,20 @@ export function TopNav({ userEmail, userName }: TopNavProps) {
     return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
 
+  const NAV_ICONS = {
+    "/":           LayoutDashboard,
+    "/trades":     TrendingUp,
+    "/analytics":  BarChart3,
+    "/journal":    BookOpen,
+    "/settings":   Settings2,
+  };
+
   const navItems = [
-    { href: "/",          label: t("nav.dashboard"),  icon: "📊" },
-    { href: "/trades",    label: t("nav.trades"),      icon: "📋" },
-    { href: "/analytics", label: t("nav.analytics"),   icon: "📈" },
-    { href: "/journal",   label: t("nav.journal"),     icon: "📓" },
-    { href: "/settings",  label: t("nav.settings"),    icon: "⚙️" },
+    { href: "/",           label: t("nav.dashboard") },
+    { href: "/trades",     label: t("nav.trades") },
+    { href: "/analytics",  label: t("nav.analytics") },
+    { href: "/journal",    label: t("nav.journal") },
+    { href: "/settings",   label: t("nav.settings") },
   ];
 
   const initials = userName
@@ -89,6 +100,24 @@ export function TopNav({ userEmail, userName }: TopNavProps) {
 
           {/* Right side */}
           <div className="flex items-center gap-2 shrink-0 ml-auto md:ml-0">
+            {/* Trial countdown badge */}
+            {trialDaysLeft !== undefined && (
+              <Link
+                href="/billing"
+                className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-400/10 border border-amber-400/25 text-amber-400 text-xs font-semibold hover:bg-amber-400/15 transition-colors"
+              >
+                {trialDaysLeft === 0 ? "Prueba: último día" : `Prueba: ${trialDaysLeft}d`}
+              </Link>
+            )}
+            {/* Billing link for active subscribers */}
+            {subscriptionStatus === "active" && (
+              <Link
+                href="/billing"
+                className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-400/10 border border-emerald-400/25 text-emerald-400 text-[11px] font-semibold hover:bg-emerald-400/15 transition-colors"
+              >
+                Pro
+              </Link>
+            )}
             <ThemeToggle />
 
             {/* New Trade — hidden on smallest screens */}
@@ -164,8 +193,9 @@ export function TopNav({ userEmail, userName }: TopNavProps) {
           >
             {/* Nav links */}
             <nav className="flex-1 p-4 pt-6 space-y-1 overflow-y-auto">
-              {navItems.map(({ href, label, icon }) => {
+              {navItems.map(({ href, label }) => {
                 const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+                const Icon = NAV_ICONS[href as keyof typeof NAV_ICONS];
                 return (
                   <Link
                     key={href}
@@ -173,16 +203,29 @@ export function TopNav({ userEmail, userName }: TopNavProps) {
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
                       active
-                        ? "text-purple-500 bg-purple-500/10"
+                        ? "text-purple-400 bg-purple-500/10"
                         : "text-fg-muted hover:text-foreground hover:bg-surface2"
                     )}
                   >
-                    <span className="text-base w-5 text-center">{icon}</span>
+                    <Icon size={15} strokeWidth={active ? 2 : 1.75} className="shrink-0" />
                     {label}
                   </Link>
                 );
               })}
             </nav>
+
+            {/* Billing / trial link in mobile drawer */}
+            {(trialDaysLeft !== undefined || subscriptionStatus === "active") && (
+              <div className="px-4 pb-2">
+                <Link
+                  href="/billing"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-amber-400 hover:bg-amber-400/10 transition-all"
+                >
+                  <CreditCard size={15} strokeWidth={1.75} className="shrink-0" />
+                  {subscriptionStatus === "active" ? "Facturación (Pro)" : `Prueba gratuita — ${trialDaysLeft}d restante${trialDaysLeft !== 1 ? "s" : ""}`}
+                </Link>
+              </div>
+            )}
 
             {/* Footer: New Trade + user */}
             <div className="p-4 space-y-4" style={{ borderTop: "1px solid var(--border)" }}>

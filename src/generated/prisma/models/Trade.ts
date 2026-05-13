@@ -39,6 +39,14 @@ export type TradeAvgAggregateOutputType = {
   rMultiple: number | null
   plannedR: number | null
   quality: number | null
+  strikePrice: number | null
+  premium: number | null
+  delta: number | null
+  gamma: number | null
+  theta: number | null
+  vega: number | null
+  openInterest: number | null
+  impliedVolatility: number | null
 }
 
 export type TradeSumAggregateOutputType = {
@@ -54,6 +62,14 @@ export type TradeSumAggregateOutputType = {
   rMultiple: number | null
   plannedR: number | null
   quality: number | null
+  strikePrice: number | null
+  premium: number | null
+  delta: number | null
+  gamma: number | null
+  theta: number | null
+  vega: number | null
+  openInterest: bigint | null
+  impliedVolatility: number | null
 }
 
 export type TradeMinAggregateOutputType = {
@@ -81,6 +97,16 @@ export type TradeMinAggregateOutputType = {
   notes: string | null
   mistakes: string | null
   lessonsLearned: string | null
+  optionType: string | null
+  strikePrice: number | null
+  expirationDate: Date | null
+  premium: number | null
+  delta: number | null
+  gamma: number | null
+  theta: number | null
+  vega: number | null
+  openInterest: bigint | null
+  impliedVolatility: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -110,6 +136,16 @@ export type TradeMaxAggregateOutputType = {
   notes: string | null
   mistakes: string | null
   lessonsLearned: string | null
+  optionType: string | null
+  strikePrice: number | null
+  expirationDate: Date | null
+  premium: number | null
+  delta: number | null
+  gamma: number | null
+  theta: number | null
+  vega: number | null
+  openInterest: bigint | null
+  impliedVolatility: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -139,6 +175,16 @@ export type TradeCountAggregateOutputType = {
   notes: number
   mistakes: number
   lessonsLearned: number
+  optionType: number
+  strikePrice: number
+  expirationDate: number
+  premium: number
+  delta: number
+  gamma: number
+  theta: number
+  vega: number
+  openInterest: number
+  impliedVolatility: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -158,6 +204,14 @@ export type TradeAvgAggregateInputType = {
   rMultiple?: true
   plannedR?: true
   quality?: true
+  strikePrice?: true
+  premium?: true
+  delta?: true
+  gamma?: true
+  theta?: true
+  vega?: true
+  openInterest?: true
+  impliedVolatility?: true
 }
 
 export type TradeSumAggregateInputType = {
@@ -173,6 +227,14 @@ export type TradeSumAggregateInputType = {
   rMultiple?: true
   plannedR?: true
   quality?: true
+  strikePrice?: true
+  premium?: true
+  delta?: true
+  gamma?: true
+  theta?: true
+  vega?: true
+  openInterest?: true
+  impliedVolatility?: true
 }
 
 export type TradeMinAggregateInputType = {
@@ -200,6 +262,16 @@ export type TradeMinAggregateInputType = {
   notes?: true
   mistakes?: true
   lessonsLearned?: true
+  optionType?: true
+  strikePrice?: true
+  expirationDate?: true
+  premium?: true
+  delta?: true
+  gamma?: true
+  theta?: true
+  vega?: true
+  openInterest?: true
+  impliedVolatility?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -229,6 +301,16 @@ export type TradeMaxAggregateInputType = {
   notes?: true
   mistakes?: true
   lessonsLearned?: true
+  optionType?: true
+  strikePrice?: true
+  expirationDate?: true
+  premium?: true
+  delta?: true
+  gamma?: true
+  theta?: true
+  vega?: true
+  openInterest?: true
+  impliedVolatility?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -258,6 +340,16 @@ export type TradeCountAggregateInputType = {
   notes?: true
   mistakes?: true
   lessonsLearned?: true
+  optionType?: true
+  strikePrice?: true
+  expirationDate?: true
+  premium?: true
+  delta?: true
+  gamma?: true
+  theta?: true
+  vega?: true
+  openInterest?: true
+  impliedVolatility?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -374,6 +466,16 @@ export type TradeGroupByOutputType = {
   notes: string | null
   mistakes: string | null
   lessonsLearned: string | null
+  optionType: string | null
+  strikePrice: number | null
+  expirationDate: Date | null
+  premium: number | null
+  delta: number | null
+  gamma: number | null
+  theta: number | null
+  vega: number | null
+  openInterest: bigint | null
+  impliedVolatility: number | null
   createdAt: Date
   updatedAt: Date
   _count: TradeCountAggregateOutputType | null
@@ -426,6 +528,16 @@ export type TradeWhereInput = {
   notes?: Prisma.StringNullableFilter<"Trade"> | string | null
   mistakes?: Prisma.StringNullableFilter<"Trade"> | string | null
   lessonsLearned?: Prisma.StringNullableFilter<"Trade"> | string | null
+  optionType?: Prisma.StringNullableFilter<"Trade"> | string | null
+  strikePrice?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  expirationDate?: Prisma.DateTimeNullableFilter<"Trade"> | Date | string | null
+  premium?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  delta?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  gamma?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  theta?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  vega?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  openInterest?: Prisma.BigIntNullableFilter<"Trade"> | bigint | number | null
+  impliedVolatility?: Prisma.FloatNullableFilter<"Trade"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Trade"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Trade"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -460,6 +572,16 @@ export type TradeOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   mistakes?: Prisma.SortOrderInput | Prisma.SortOrder
   lessonsLearned?: Prisma.SortOrderInput | Prisma.SortOrder
+  optionType?: Prisma.SortOrderInput | Prisma.SortOrder
+  strikePrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  expirationDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  premium?: Prisma.SortOrderInput | Prisma.SortOrder
+  delta?: Prisma.SortOrderInput | Prisma.SortOrder
+  gamma?: Prisma.SortOrderInput | Prisma.SortOrder
+  theta?: Prisma.SortOrderInput | Prisma.SortOrder
+  vega?: Prisma.SortOrderInput | Prisma.SortOrder
+  openInterest?: Prisma.SortOrderInput | Prisma.SortOrder
+  impliedVolatility?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -497,6 +619,16 @@ export type TradeWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Trade"> | string | null
   mistakes?: Prisma.StringNullableFilter<"Trade"> | string | null
   lessonsLearned?: Prisma.StringNullableFilter<"Trade"> | string | null
+  optionType?: Prisma.StringNullableFilter<"Trade"> | string | null
+  strikePrice?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  expirationDate?: Prisma.DateTimeNullableFilter<"Trade"> | Date | string | null
+  premium?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  delta?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  gamma?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  theta?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  vega?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  openInterest?: Prisma.BigIntNullableFilter<"Trade"> | bigint | number | null
+  impliedVolatility?: Prisma.FloatNullableFilter<"Trade"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Trade"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Trade"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -531,6 +663,16 @@ export type TradeOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   mistakes?: Prisma.SortOrderInput | Prisma.SortOrder
   lessonsLearned?: Prisma.SortOrderInput | Prisma.SortOrder
+  optionType?: Prisma.SortOrderInput | Prisma.SortOrder
+  strikePrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  expirationDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  premium?: Prisma.SortOrderInput | Prisma.SortOrder
+  delta?: Prisma.SortOrderInput | Prisma.SortOrder
+  gamma?: Prisma.SortOrderInput | Prisma.SortOrder
+  theta?: Prisma.SortOrderInput | Prisma.SortOrder
+  vega?: Prisma.SortOrderInput | Prisma.SortOrder
+  openInterest?: Prisma.SortOrderInput | Prisma.SortOrder
+  impliedVolatility?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TradeCountOrderByAggregateInput
@@ -568,6 +710,16 @@ export type TradeScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"Trade"> | string | null
   mistakes?: Prisma.StringNullableWithAggregatesFilter<"Trade"> | string | null
   lessonsLearned?: Prisma.StringNullableWithAggregatesFilter<"Trade"> | string | null
+  optionType?: Prisma.StringNullableWithAggregatesFilter<"Trade"> | string | null
+  strikePrice?: Prisma.FloatNullableWithAggregatesFilter<"Trade"> | number | null
+  expirationDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Trade"> | Date | string | null
+  premium?: Prisma.FloatNullableWithAggregatesFilter<"Trade"> | number | null
+  delta?: Prisma.FloatNullableWithAggregatesFilter<"Trade"> | number | null
+  gamma?: Prisma.FloatNullableWithAggregatesFilter<"Trade"> | number | null
+  theta?: Prisma.FloatNullableWithAggregatesFilter<"Trade"> | number | null
+  vega?: Prisma.FloatNullableWithAggregatesFilter<"Trade"> | number | null
+  openInterest?: Prisma.BigIntNullableWithAggregatesFilter<"Trade"> | bigint | number | null
+  impliedVolatility?: Prisma.FloatNullableWithAggregatesFilter<"Trade"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Trade"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Trade"> | Date | string
 }
@@ -594,6 +746,16 @@ export type TradeCreateInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTradesInput
@@ -628,6 +790,16 @@ export type TradeUncheckedCreateInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   screenshots?: Prisma.ScreenshotUncheckedCreateNestedManyWithoutTradeInput
@@ -656,6 +828,16 @@ export type TradeUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTradesNestedInput
@@ -690,6 +872,16 @@ export type TradeUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   screenshots?: Prisma.ScreenshotUncheckedUpdateManyWithoutTradeNestedInput
@@ -721,6 +913,16 @@ export type TradeCreateManyInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -747,6 +949,16 @@ export type TradeUpdateManyMutationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -776,6 +988,16 @@ export type TradeUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -815,6 +1037,16 @@ export type TradeCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   mistakes?: Prisma.SortOrder
   lessonsLearned?: Prisma.SortOrder
+  optionType?: Prisma.SortOrder
+  strikePrice?: Prisma.SortOrder
+  expirationDate?: Prisma.SortOrder
+  premium?: Prisma.SortOrder
+  delta?: Prisma.SortOrder
+  gamma?: Prisma.SortOrder
+  theta?: Prisma.SortOrder
+  vega?: Prisma.SortOrder
+  openInterest?: Prisma.SortOrder
+  impliedVolatility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -832,6 +1064,14 @@ export type TradeAvgOrderByAggregateInput = {
   rMultiple?: Prisma.SortOrder
   plannedR?: Prisma.SortOrder
   quality?: Prisma.SortOrder
+  strikePrice?: Prisma.SortOrder
+  premium?: Prisma.SortOrder
+  delta?: Prisma.SortOrder
+  gamma?: Prisma.SortOrder
+  theta?: Prisma.SortOrder
+  vega?: Prisma.SortOrder
+  openInterest?: Prisma.SortOrder
+  impliedVolatility?: Prisma.SortOrder
 }
 
 export type TradeMaxOrderByAggregateInput = {
@@ -859,6 +1099,16 @@ export type TradeMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   mistakes?: Prisma.SortOrder
   lessonsLearned?: Prisma.SortOrder
+  optionType?: Prisma.SortOrder
+  strikePrice?: Prisma.SortOrder
+  expirationDate?: Prisma.SortOrder
+  premium?: Prisma.SortOrder
+  delta?: Prisma.SortOrder
+  gamma?: Prisma.SortOrder
+  theta?: Prisma.SortOrder
+  vega?: Prisma.SortOrder
+  openInterest?: Prisma.SortOrder
+  impliedVolatility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -888,6 +1138,16 @@ export type TradeMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   mistakes?: Prisma.SortOrder
   lessonsLearned?: Prisma.SortOrder
+  optionType?: Prisma.SortOrder
+  strikePrice?: Prisma.SortOrder
+  expirationDate?: Prisma.SortOrder
+  premium?: Prisma.SortOrder
+  delta?: Prisma.SortOrder
+  gamma?: Prisma.SortOrder
+  theta?: Prisma.SortOrder
+  vega?: Prisma.SortOrder
+  openInterest?: Prisma.SortOrder
+  impliedVolatility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -905,6 +1165,14 @@ export type TradeSumOrderByAggregateInput = {
   rMultiple?: Prisma.SortOrder
   plannedR?: Prisma.SortOrder
   quality?: Prisma.SortOrder
+  strikePrice?: Prisma.SortOrder
+  premium?: Prisma.SortOrder
+  delta?: Prisma.SortOrder
+  gamma?: Prisma.SortOrder
+  theta?: Prisma.SortOrder
+  vega?: Prisma.SortOrder
+  openInterest?: Prisma.SortOrder
+  impliedVolatility?: Prisma.SortOrder
 }
 
 export type TradeScalarRelationFilter = {
@@ -1063,6 +1331,14 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableBigIntFieldUpdateOperationsInput = {
+  set?: bigint | number | null
+  increment?: bigint | number
+  decrement?: bigint | number
+  multiply?: bigint | number
+  divide?: bigint | number
+}
+
 export type TradeCreateNestedOneWithoutTagsInput = {
   create?: Prisma.XOR<Prisma.TradeCreateWithoutTagsInput, Prisma.TradeUncheckedCreateWithoutTagsInput>
   connectOrCreate?: Prisma.TradeCreateOrConnectWithoutTagsInput
@@ -1115,6 +1391,16 @@ export type TradeCreateWithoutUserInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   instrument: Prisma.InstrumentCreateNestedOneWithoutTradesInput
@@ -1147,6 +1433,16 @@ export type TradeUncheckedCreateWithoutUserInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   screenshots?: Prisma.ScreenshotUncheckedCreateNestedManyWithoutTradeInput
@@ -1207,6 +1503,16 @@ export type TradeScalarWhereInput = {
   notes?: Prisma.StringNullableFilter<"Trade"> | string | null
   mistakes?: Prisma.StringNullableFilter<"Trade"> | string | null
   lessonsLearned?: Prisma.StringNullableFilter<"Trade"> | string | null
+  optionType?: Prisma.StringNullableFilter<"Trade"> | string | null
+  strikePrice?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  expirationDate?: Prisma.DateTimeNullableFilter<"Trade"> | Date | string | null
+  premium?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  delta?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  gamma?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  theta?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  vega?: Prisma.FloatNullableFilter<"Trade"> | number | null
+  openInterest?: Prisma.BigIntNullableFilter<"Trade"> | bigint | number | null
+  impliedVolatility?: Prisma.FloatNullableFilter<"Trade"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Trade"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Trade"> | Date | string
 }
@@ -1233,6 +1539,16 @@ export type TradeCreateWithoutInstrumentInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTradesInput
@@ -1265,6 +1581,16 @@ export type TradeUncheckedCreateWithoutInstrumentInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   screenshots?: Prisma.ScreenshotUncheckedCreateNestedManyWithoutTradeInput
@@ -1319,6 +1645,16 @@ export type TradeCreateWithoutSetupInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTradesInput
@@ -1351,6 +1687,16 @@ export type TradeUncheckedCreateWithoutSetupInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   screenshots?: Prisma.ScreenshotUncheckedCreateNestedManyWithoutTradeInput
@@ -1405,6 +1751,16 @@ export type TradeCreateWithoutTagsInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTradesInput
@@ -1438,6 +1794,16 @@ export type TradeUncheckedCreateWithoutTagsInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   screenshots?: Prisma.ScreenshotUncheckedCreateNestedManyWithoutTradeInput
@@ -1481,6 +1847,16 @@ export type TradeUpdateWithoutTagsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTradesNestedInput
@@ -1514,6 +1890,16 @@ export type TradeUncheckedUpdateWithoutTagsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   screenshots?: Prisma.ScreenshotUncheckedUpdateManyWithoutTradeNestedInput
@@ -1541,6 +1927,16 @@ export type TradeCreateWithoutScreenshotsInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTradesInput
@@ -1574,6 +1970,16 @@ export type TradeUncheckedCreateWithoutScreenshotsInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.TradeTagUncheckedCreateNestedManyWithoutTradeInput
@@ -1617,6 +2023,16 @@ export type TradeUpdateWithoutScreenshotsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTradesNestedInput
@@ -1650,6 +2066,16 @@ export type TradeUncheckedUpdateWithoutScreenshotsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.TradeTagUncheckedUpdateManyWithoutTradeNestedInput
@@ -1679,6 +2105,16 @@ export type TradeCreateManyUserInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1705,6 +2141,16 @@ export type TradeUpdateWithoutUserInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   instrument?: Prisma.InstrumentUpdateOneRequiredWithoutTradesNestedInput
@@ -1737,6 +2183,16 @@ export type TradeUncheckedUpdateWithoutUserInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   screenshots?: Prisma.ScreenshotUncheckedUpdateManyWithoutTradeNestedInput
@@ -1767,6 +2223,16 @@ export type TradeUncheckedUpdateManyWithoutUserInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1795,6 +2261,16 @@ export type TradeCreateManyInstrumentInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1821,6 +2297,16 @@ export type TradeUpdateWithoutInstrumentInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTradesNestedInput
@@ -1853,6 +2339,16 @@ export type TradeUncheckedUpdateWithoutInstrumentInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   screenshots?: Prisma.ScreenshotUncheckedUpdateManyWithoutTradeNestedInput
@@ -1883,6 +2379,16 @@ export type TradeUncheckedUpdateManyWithoutInstrumentInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1911,6 +2417,16 @@ export type TradeCreateManySetupInput = {
   notes?: string | null
   mistakes?: string | null
   lessonsLearned?: string | null
+  optionType?: string | null
+  strikePrice?: number | null
+  expirationDate?: Date | string | null
+  premium?: number | null
+  delta?: number | null
+  gamma?: number | null
+  theta?: number | null
+  vega?: number | null
+  openInterest?: bigint | number | null
+  impliedVolatility?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1937,6 +2453,16 @@ export type TradeUpdateWithoutSetupInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTradesNestedInput
@@ -1969,6 +2495,16 @@ export type TradeUncheckedUpdateWithoutSetupInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   screenshots?: Prisma.ScreenshotUncheckedUpdateManyWithoutTradeNestedInput
@@ -1999,6 +2535,16 @@ export type TradeUncheckedUpdateManyWithoutSetupInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mistakes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lessonsLearned?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strikePrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expirationDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  premium?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gamma?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  theta?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  vega?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  openInterest?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  impliedVolatility?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2068,6 +2614,16 @@ export type TradeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   notes?: boolean
   mistakes?: boolean
   lessonsLearned?: boolean
+  optionType?: boolean
+  strikePrice?: boolean
+  expirationDate?: boolean
+  premium?: boolean
+  delta?: boolean
+  gamma?: boolean
+  theta?: boolean
+  vega?: boolean
+  openInterest?: boolean
+  impliedVolatility?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -2103,6 +2659,16 @@ export type TradeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   notes?: boolean
   mistakes?: boolean
   lessonsLearned?: boolean
+  optionType?: boolean
+  strikePrice?: boolean
+  expirationDate?: boolean
+  premium?: boolean
+  delta?: boolean
+  gamma?: boolean
+  theta?: boolean
+  vega?: boolean
+  openInterest?: boolean
+  impliedVolatility?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -2135,6 +2701,16 @@ export type TradeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   notes?: boolean
   mistakes?: boolean
   lessonsLearned?: boolean
+  optionType?: boolean
+  strikePrice?: boolean
+  expirationDate?: boolean
+  premium?: boolean
+  delta?: boolean
+  gamma?: boolean
+  theta?: boolean
+  vega?: boolean
+  openInterest?: boolean
+  impliedVolatility?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -2167,11 +2743,21 @@ export type TradeSelectScalar = {
   notes?: boolean
   mistakes?: boolean
   lessonsLearned?: boolean
+  optionType?: boolean
+  strikePrice?: boolean
+  expirationDate?: boolean
+  premium?: boolean
+  delta?: boolean
+  gamma?: boolean
+  theta?: boolean
+  vega?: boolean
+  openInterest?: boolean
+  impliedVolatility?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TradeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "instrumentId" | "setupId" | "direction" | "size" | "status" | "entryPrice" | "exitPrice" | "stopLoss" | "takeProfit" | "entryAt" | "exitAt" | "grossPnl" | "fees" | "netPnl" | "riskAmount" | "rMultiple" | "plannedR" | "quality" | "emotion" | "notes" | "mistakes" | "lessonsLearned" | "createdAt" | "updatedAt", ExtArgs["result"]["trade"]>
+export type TradeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "instrumentId" | "setupId" | "direction" | "size" | "status" | "entryPrice" | "exitPrice" | "stopLoss" | "takeProfit" | "entryAt" | "exitAt" | "grossPnl" | "fees" | "netPnl" | "riskAmount" | "rMultiple" | "plannedR" | "quality" | "emotion" | "notes" | "mistakes" | "lessonsLearned" | "optionType" | "strikePrice" | "expirationDate" | "premium" | "delta" | "gamma" | "theta" | "vega" | "openInterest" | "impliedVolatility" | "createdAt" | "updatedAt", ExtArgs["result"]["trade"]>
 export type TradeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   instrument?: boolean | Prisma.InstrumentDefaultArgs<ExtArgs>
@@ -2225,6 +2811,16 @@ export type $TradePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     notes: string | null
     mistakes: string | null
     lessonsLearned: string | null
+    optionType: string | null
+    strikePrice: number | null
+    expirationDate: Date | null
+    premium: number | null
+    delta: number | null
+    gamma: number | null
+    theta: number | null
+    vega: number | null
+    openInterest: bigint | null
+    impliedVolatility: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["trade"]>
@@ -2679,6 +3275,16 @@ export interface TradeFieldRefs {
   readonly notes: Prisma.FieldRef<"Trade", 'String'>
   readonly mistakes: Prisma.FieldRef<"Trade", 'String'>
   readonly lessonsLearned: Prisma.FieldRef<"Trade", 'String'>
+  readonly optionType: Prisma.FieldRef<"Trade", 'String'>
+  readonly strikePrice: Prisma.FieldRef<"Trade", 'Float'>
+  readonly expirationDate: Prisma.FieldRef<"Trade", 'DateTime'>
+  readonly premium: Prisma.FieldRef<"Trade", 'Float'>
+  readonly delta: Prisma.FieldRef<"Trade", 'Float'>
+  readonly gamma: Prisma.FieldRef<"Trade", 'Float'>
+  readonly theta: Prisma.FieldRef<"Trade", 'Float'>
+  readonly vega: Prisma.FieldRef<"Trade", 'Float'>
+  readonly openInterest: Prisma.FieldRef<"Trade", 'BigInt'>
+  readonly impliedVolatility: Prisma.FieldRef<"Trade", 'Float'>
   readonly createdAt: Prisma.FieldRef<"Trade", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Trade", 'DateTime'>
 }

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n/context";
+import { Camera, X } from "lucide-react";
 
 interface Screenshot {
   id: string;
@@ -74,6 +75,7 @@ export function ScreenshotGallery({ tradeId, journalEntryId, screenshots: initia
           {t("trades.screenshots.title", { count: screenshots.length })}
         </div>
         <label className="cursor-pointer bg-surface2 hover:bg-surface3 border border-[var(--border)] text-fg-muted hover:text-foreground text-xs px-3 py-1.5 rounded-lg transition-all font-mono">
+          <Camera size={13} strokeWidth={1.75} className="mr-1.5" />
           {uploading ? t("trades.screenshots.uploading") : t("trades.screenshots.add")}
           <input
             type="file"
@@ -88,7 +90,7 @@ export function ScreenshotGallery({ tradeId, journalEntryId, screenshots: initia
 
       {screenshots.length === 0 ? (
         <div className="border-2 border-dashed border-[var(--border)] rounded-xl py-10 text-center">
-          <div className="text-3xl mb-2 opacity-30">📸</div>
+          <Camera size={28} strokeWidth={1.25} className="mx-auto mb-2 text-fg-subtle/30" />
           <div className="text-fg-subtle text-sm font-mono">{t("trades.screenshots.noScreenshots")}</div>
           <div className="text-fg-subtle/60 text-xs mt-1">{t("trades.screenshots.hint")}</div>
         </div>
@@ -118,9 +120,9 @@ export function ScreenshotGallery({ tradeId, journalEntryId, screenshots: initia
                 <button
                   onClick={() => handleDelete(ss.id)}
                   disabled={isPending}
-                  className="bg-red-500/20 hover:bg-red-500/40 text-red-300 text-xs px-2 py-1 rounded font-mono transition-all"
+                  className="bg-red-500/20 hover:bg-red-500/40 text-red-300 p-1 rounded transition-all flex items-center justify-center"
                 >
-                  ✕
+                  <X size={12} strokeWidth={2.5} />
                 </button>
               </div>
             </div>
@@ -142,10 +144,10 @@ export function ScreenshotGallery({ tradeId, journalEntryId, screenshots: initia
             onClick={(e) => e.stopPropagation()}
           />
           <button
-            className="absolute top-4 right-4 text-white/70 hover:text-white text-2xl leading-none transition-colors"
+            className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
             onClick={() => setLightbox(null)}
           >
-            ✕
+            <X size={22} strokeWidth={2} />
           </button>
         </div>
       )}

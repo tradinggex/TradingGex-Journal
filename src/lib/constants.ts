@@ -18,15 +18,15 @@ export const TRADE_STATUSES = [
 ] as const;
 
 export const EMOTIONS = [
-  { value: "FOCUSED", label: "Enfocado", emoji: "🎯" },
-  { value: "CALM", label: "Tranquilo", emoji: "😌" },
-  { value: "NEUTRAL", label: "Neutral", emoji: "😐" },
-  { value: "CONFIDENT", label: "Confiado", emoji: "😊" },
-  { value: "ANXIOUS", label: "Ansioso", emoji: "😰" },
-  { value: "FEARFUL", label: "Con Miedo", emoji: "😨" },
-  { value: "GREEDY", label: "Codicioso", emoji: "🤑" },
-  { value: "REVENGE", label: "Revenge Trade", emoji: "😤" },
-  { value: "FOMO", label: "FOMO", emoji: "🤩" },
+  { value: "FOCUSED",   label: "Enfocado",      color: "#a855f7" },
+  { value: "CALM",      label: "Tranquilo",     color: "#22d3ee" },
+  { value: "NEUTRAL",   label: "Neutral",       color: "#94a3b8" },
+  { value: "CONFIDENT", label: "Confiado",      color: "#4ade80" },
+  { value: "ANXIOUS",   label: "Ansioso",       color: "#facc15" },
+  { value: "FEARFUL",   label: "Con Miedo",     color: "#f87171" },
+  { value: "GREEDY",    label: "Codicioso",     color: "#fb923c" },
+  { value: "REVENGE",   label: "Revenge Trade", color: "#ef4444" },
+  { value: "FOMO",      label: "FOMO",          color: "#f472b6" },
 ] as const;
 
 export const DEFAULT_INSTRUMENTS = [

@@ -18,9 +18,10 @@ export default async function EditTradePage({ params }: PageProps) {
   const [tradeRes, instrumentsRes, setupsRes, tagsRes, dict] = await Promise.all([
     supabase
       .from("Trade")
-      .select("*, instrument:Instrument(*), tags:TradeTag(*, tag:Tag(*))")
+      .select("*, instrument:Instrument(*), tags:TradeTag(*, tag:Tag(*)), screenshots:Screenshot(*)")
       .eq("id", id)
       .eq("userId", user.userId)
+      .order("createdAt", { referencedTable: "screenshots", ascending: true })
       .maybeSingle(),
     supabase.from("Instrument").select("*").eq("isActive", true).order("symbol"),
     supabase.from("Setup").select("*").eq("isActive", true).order("name"),
@@ -32,7 +33,7 @@ export default async function EditTradePage({ params }: PageProps) {
   if (!trade) notFound();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { instrument, ...tradeData } = trade;
+  const { instrument, screenshots, ...tradeData } = trade;
 
   return (
     <div className="space-y-5">
@@ -52,6 +53,7 @@ export default async function EditTradePage({ params }: PageProps) {
         setups={setupsRes.data ?? []}
         tags={tagsRes.data ?? []}
         editTrade={tradeData}
+        editScreenshots={screenshots ?? []}
       />
     </div>
   );

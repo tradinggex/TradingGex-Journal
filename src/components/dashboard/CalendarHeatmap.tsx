@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/formatters";
+import { useLocale, useTranslation } from "@/lib/i18n/context";
+
+const LOCALE_MAP: Record<string, string> = {
+  es: "es-MX",
+  en: "en-US",
+  pt: "pt-BR",
+};
 
 export interface CalendarTrade {
   id: string;
@@ -19,8 +26,6 @@ interface CalendarHeatmapProps {
   dailyPnl: Record<string, number>;
   trades?: CalendarTrade[];
 }
-
-const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 function getCellStyle(pnl: number | undefined, isToday: boolean): string {
   if (pnl === undefined) {
@@ -45,6 +50,9 @@ function DayPanel({
   trades: CalendarTrade[];
   onClose: () => void;
 }) {
+  const t = useTranslation();
+  const locale = useLocale();
+  const bcp47 = LOCALE_MAP[locale] ?? "es-MX";
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -62,7 +70,7 @@ function DayPanel({
 
   // Parse date parts to avoid UTC-shift when constructing label
   const [y, mo, d] = date.split("-").map(Number);
-  const dateLabel = new Date(y, mo - 1, d).toLocaleDateString("es-MX", {
+  const dateLabel = new Date(y, mo - 1, d).toLocaleDateString(bcp47, {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -89,7 +97,7 @@ function DayPanel({
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={`Resumen del ${dateLabel}`}
+          aria-label={dateLabel}
           className={`
             pointer-events-auto
             w-full sm:max-w-md
@@ -121,7 +129,7 @@ function DayPanel({
               </p>
               {trades.length > 0 && (
                 <p className="text-xs text-fg-subtle mt-1">
-                  {trades.length} operación{trades.length !== 1 ? "es" : ""}
+                  {t("dashboard.calendar.tradeCount", { count: trades.length })}
                   {" · "}
                   <span className="text-emerald-400">{wins}W</span>{" "}
                   <span className="text-red-400">{losses}L</span>
@@ -132,7 +140,7 @@ function DayPanel({
               type="button"
               onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-fg-muted hover:text-foreground hover:bg-surface2 transition-colors mt-0.5 shrink-0"
-              aria-label="Cerrar"
+              aria-label={t("dashboard.calendar.close")}
             >
               <svg
                 width="14"
@@ -156,7 +164,7 @@ function DayPanel({
           <div className="px-5 py-3 space-y-2 max-h-[55vh] sm:max-h-72 overflow-y-auto">
             {trades.length === 0 ? (
               <p className="text-sm text-fg-subtle text-center py-8">
-                Sin operaciones registradas
+                {t("dashboard.calendar.noTrades")}
               </p>
             ) : (
               trades.map((trade) => {
@@ -240,6 +248,18 @@ function DayPanel({
 }
 
 export function CalendarHeatmap({ dailyPnl, trades = [] }: CalendarHeatmapProps) {
+  const t = useTranslation();
+  const locale = useLocale();
+  const bcp47 = LOCALE_MAP[locale] ?? "es-MX";
+
+  const weekdays = useMemo(() => {
+    // Jan 1, 2023 is a Sunday — iterate Sun→Sat for the header
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(2023, 0, 1 + i);
+      return new Intl.DateTimeFormat(bcp47, { weekday: "short" }).format(date);
+    });
+  }, [bcp47]);
+
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -262,7 +282,7 @@ export function CalendarHeatmap({ dailyPnl, trades = [] }: CalendarHeatmapProps)
   const startDow = firstDay.getDay();
   const totalDays = lastDay.getDate();
 
-  const monthLabel = firstDay.toLocaleDateString("es-MX", {
+  const monthLabel = firstDay.toLocaleDateString(bcp47, {
     month: "long",
     year: "numeric",
   });
@@ -305,7 +325,7 @@ export function CalendarHeatmap({ dailyPnl, trades = [] }: CalendarHeatmapProps)
             type="button"
             onClick={prevMonth}
             className="w-7 h-7 flex items-center justify-center rounded-lg text-fg-muted hover:text-foreground hover:bg-surface2 transition-colors"
-            aria-label="Mes anterior"
+            aria-label={t("dashboard.calendar.prevMonth")}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
@@ -319,7 +339,7 @@ export function CalendarHeatmap({ dailyPnl, trades = [] }: CalendarHeatmapProps)
             onClick={nextMonth}
             disabled={isCurrentMonth}
             className="w-7 h-7 flex items-center justify-center rounded-lg text-fg-muted hover:text-foreground hover:bg-surface2 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Mes siguiente"
+            aria-label={t("dashboard.calendar.nextMonth")}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18l6-6-6-6" />
@@ -328,11 +348,11 @@ export function CalendarHeatmap({ dailyPnl, trades = [] }: CalendarHeatmapProps)
         </div>
         <div className="flex items-center gap-4 text-sm">
           <span className="text-emerald-400">
-            <span className="text-fg-subtle mr-1">win</span>
+            <span className="text-fg-subtle mr-1">{t("dashboard.calendar.winLabel")}</span>
             {winDays}d
           </span>
           <span className="text-red-400">
-            <span className="text-fg-subtle mr-1">loss</span>
+            <span className="text-fg-subtle mr-1">{t("dashboard.calendar.lossLabel")}</span>
             {lossDays}d
           </span>
           <span className={`font-bold ${monthPnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
@@ -344,7 +364,7 @@ export function CalendarHeatmap({ dailyPnl, trades = [] }: CalendarHeatmapProps)
 
       {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
-        {WEEKDAYS.map((d) => (
+        {weekdays.map((d) => (
           <div
             key={d}
             className="text-center text-xs text-fg-subtle uppercase tracking-widest"
@@ -424,15 +444,15 @@ export function CalendarHeatmap({ dailyPnl, trades = [] }: CalendarHeatmapProps)
       <div className="flex items-center gap-5 mt-5 text-xs text-fg-subtle">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-emerald-400/15 border border-emerald-400/25" />
-          <span>Ganancia</span>
+          <span>{t("dashboard.calendar.profit")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-red-400/15 border border-red-400/25" />
-          <span>Pérdida</span>
+          <span>{t("dashboard.calendar.lossLegend")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-purple-500/10 border border-purple-500/40" />
-          <span>Hoy</span>
+          <span>{t("dashboard.calendar.today")}</span>
         </div>
       </div>
 

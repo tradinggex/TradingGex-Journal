@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/formatters";
 import { EMOTIONS } from "@/lib/constants";
 import { DeleteJournalButton } from "@/components/journal/DeleteJournalButton";
 import { ScreenshotGallery } from "@/components/trades/ScreenshotGallery";
+import { BarChart3 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -47,8 +48,9 @@ export default async function JournalEntryPage({ params }: PageProps) {
           </h1>
           <div className="flex items-center gap-3 mt-1">
             {emotion && (
-              <span className="text-sm text-fg-muted">
-                {emotion.emoji} {emotion.label}
+              <span className="text-sm text-fg-muted flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: emotion.color }} />
+                {emotion.label}
               </span>
             )}
             {entry.followedRules !== null && (
@@ -83,7 +85,10 @@ export default async function JournalEntryPage({ params }: PageProps) {
       {entry.marketCondition && (
         <div className={section}>
           <div className="text-xs text-fg-subtle uppercase tracking-wider font-mono mb-2">{d.marketCondition}</div>
-          <p className="text-sm text-slate-300">📊 {entry.marketCondition}</p>
+          <p className="text-sm text-slate-300 flex items-center gap-1.5">
+            <BarChart3 size={13} strokeWidth={1.75} className="shrink-0 text-fg-subtle" />
+            {entry.marketCondition}
+          </p>
         </div>
       )}
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabase";
 import { createSession } from "@/lib/session";
+import { sendWelcomeEmail } from "@/lib/email";
 
 interface GoogleUserInfo {
   id: string;
@@ -58,10 +59,17 @@ export async function GET(request: Request) {
 
     if (!existingUser) {
       const id = crypto.randomUUID();
-      const now = new Date().toISOString();
+      const now = new Date();
+      const trialEndsAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
       const { data: newUser, error } = await supabase
         .from("User")
-        .insert({ id, email: userInfo.email, name: userInfo.name ?? null, createdAt: now, updatedAt: now })
+        .insert({
+          id, email: userInfo.email, name: userInfo.name ?? null,
+          subscriptionStatus: "trialing",
+          trialEndsAt,
+          createdAt: now.toISOString(),
+          updatedAt: now.toISOString(),
+        })
         .select("id, email, name")
         .single();
 
@@ -73,6 +81,8 @@ export async function GET(request: Request) {
         provider: "google",
         providerAccountId: userInfo.id,
       });
+
+      void sendWelcomeEmail(newUser.email, newUser.name);
 
       userId = newUser.id;
       userName = newUser.name;
@@ -95,6 +105,11 @@ export async function GET(request: Request) {
       userId = existingUser.id;
       userName = existingUser.name;
     }
+
+    await supabase
+      .from("User")
+      .update({ lastLoginAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
+      .eq("id", userId);
 
     await createSession(userId, userInfo.email, userName);
     return NextResponse.redirect(new URL("/", request.url));

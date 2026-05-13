@@ -8,6 +8,7 @@ export interface ClosedTrade {
   direction: string;
   instrumentId: string;
   instrument?: { symbol: string; market: string } | null;
+  optionType?: string | null;
 }
 
 export function computeWinRate(trades: ClosedTrade[]): number {
@@ -47,7 +48,7 @@ export function computeSharpeRatio(trades: ClosedTrade[]): number {
   return (mean / stdDev) * Math.sqrt(252);
 }
 
-export function buildEquityCurve(trades: ClosedTrade[]): { index: number; cumPnl: number; date: string; pnl: number }[] {
+export function buildEquityCurve(trades: ClosedTrade[], locale = "en-US"): { index: number; cumPnl: number; date: string; pnl: number }[] {
   const sorted = [...trades].sort(
     (a, b) => new Date(a.entryAt).getTime() - new Date(b.entryAt).getTime()
   );
@@ -58,13 +59,13 @@ export function buildEquityCurve(trades: ClosedTrade[]): { index: number; cumPnl
       index: i + 1,
       cumPnl: Math.round(cumPnl * 100) / 100,
       pnl: t.netPnl,
-      date: new Date(t.entryAt).toLocaleDateString("es-MX", { month: "short", day: "numeric" }),
+      date: new Date(t.entryAt).toLocaleDateString(locale, { month: "short", day: "numeric" }),
     };
   });
 }
 
-export function buildDrawdownCurve(trades: ClosedTrade[]): { index: number; drawdown: number; date: string }[] {
-  const curve = buildEquityCurve(trades);
+export function buildDrawdownCurve(trades: ClosedTrade[], locale = "en-US"): { index: number; drawdown: number; date: string }[] {
+  const curve = buildEquityCurve(trades, locale);
   if (curve.length === 0) return [];
   let peak = 0;
   return curve.map((pt) => {
@@ -153,12 +154,12 @@ export function buildDailyPnl(trades: ClosedTrade[]): Record<string, number> {
   return map;
 }
 
-export function computeStats(trades: ClosedTrade[]) {
+export function computeStats(trades: ClosedTrade[], locale = "en-US") {
   const closed = trades.filter((t) => t.netPnl !== null && t.netPnl !== undefined);
   const wins = closed.filter((t) => t.netPnl > 0);
   const losses = closed.filter((t) => t.netPnl < 0);
   const rTrades = closed.filter((t) => t.rMultiple !== null);
-  const curve = buildEquityCurve(closed);
+  const curve = buildEquityCurve(closed, locale);
   const equityValues = curve.map((p) => p.cumPnl);
 
   return {
@@ -178,6 +179,32 @@ export function computeStats(trades: ClosedTrade[]) {
     sharpeRatio: computeSharpeRatio(closed),
     avgR: rTrades.length ? rTrades.reduce((s, t) => s + t.rMultiple!, 0) / rTrades.length : null,
     equityCurve: curve,
-    drawdownCurve: buildDrawdownCurve(closed),
+    drawdownCurve: buildDrawdownCurve(closed, locale),
   };
+}
+
+const MARKET_COLORS: Record<string, string> = {
+  CME:     "#448aff",
+  STOCKS:  "#00e676",
+  CRYPTO:  "#d500f9",
+  FOREX:   "#ff9800",
+  OPTIONS: "#ffea00",
+  GENERIC: "#90a4ae",
+};
+
+export function buildInstrumentMix(
+  trades: ClosedTrade[]
+): { market: string; count: number; color: string }[] {
+  const counts: Record<string, number> = {};
+  for (const t of trades) {
+    const key = t.optionType ? "OPTIONS" : (t.instrument?.market ?? "GENERIC");
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+  return Object.entries(counts)
+    .map(([market, count]) => ({
+      market,
+      count,
+      color: MARKET_COLORS[market] ?? "#90a4ae",
+    }))
+    .sort((a, b) => b.count - a.count);
 }

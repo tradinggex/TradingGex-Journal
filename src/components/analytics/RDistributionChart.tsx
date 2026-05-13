@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface RDistributionChartProps {
   data: { bucket: string; count: number; wins: number; losses: number }[];
@@ -27,7 +28,7 @@ function CustomTooltip({
     return (
       <div className="bg-surface2 border border-[var(--border)] rounded-lg px-3 py-2 text-xs">
         <div className="text-foreground font-bold font-mono mb-1">{d.bucket}</div>
-        <div className="text-fg-muted font-mono">{d.count} trades</div>
+        <div className="text-fg-muted font-mono">{d.count}</div>
         <div className="text-green-400 font-mono">{d.wins}W</div>
         <div className="text-red-400 font-mono">{d.losses}L</div>
       </div>
@@ -37,10 +38,12 @@ function CustomTooltip({
 }
 
 export function RDistributionChart({ data }: RDistributionChartProps) {
+  const t = useTranslation();
+
   if (data.length === 0) {
     return (
       <div className="h-48 flex items-center justify-center text-fg-subtle text-sm font-mono">
-        Sin datos de R múltiple
+        {t("analytics.noRData")}
       </div>
     );
   }

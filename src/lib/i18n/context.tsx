@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext } from "react";
-import type { Dict } from "./locales/en";
+import type { Dict, Locale } from "./locales/en";
 
 type Params = Record<string, string | number>;
 
@@ -12,7 +12,6 @@ function interpolate(str: string, params?: Params): string {
   );
 }
 
-// Resolve a dot-notation path against the Dict object
 function resolve(obj: unknown, path: string): string {
   const parts = path.split(".");
   let current: unknown = obj;
@@ -26,13 +25,20 @@ function resolve(obj: unknown, path: string): string {
 
 type TFunction = (key: string, params?: Params) => string;
 
-const I18nContext = createContext<TFunction>(() => "");
+type I18nContextValue = { t: TFunction; locale: Locale };
+
+const I18nContext = createContext<I18nContextValue>({
+  t: () => "",
+  locale: "es",
+});
 
 export function I18nProvider({
   dict,
+  locale,
   children,
 }: {
   dict: Dict;
+  locale: Locale;
   children: React.ReactNode;
 }) {
   const t: TFunction = (key, params) => {
@@ -40,9 +46,17 @@ export function I18nProvider({
     return interpolate(raw, params);
   };
 
-  return <I18nContext.Provider value={t}>{children}</I18nContext.Provider>;
+  return (
+    <I18nContext.Provider value={{ t, locale }}>
+      {children}
+    </I18nContext.Provider>
+  );
 }
 
 export function useTranslation(): TFunction {
-  return useContext(I18nContext);
+  return useContext(I18nContext).t;
+}
+
+export function useLocale(): Locale {
+  return useContext(I18nContext).locale;
 }

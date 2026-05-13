@@ -114,8 +114,9 @@ export default async function TradeDetailPage({ params }: PageProps) {
             {trade.quality ? "★".repeat(trade.quality) + "☆".repeat(5 - trade.quality) : "—"}
           </div>
           {emotion && (
-            <div className="text-xs text-fg-muted font-mono mt-0.5">
-              {emotion.emoji} {emotion.label}
+            <div className="text-xs text-fg-muted font-mono mt-0.5 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: emotion.color }} />
+              {emotion.label}
             </div>
           )}
         </div>

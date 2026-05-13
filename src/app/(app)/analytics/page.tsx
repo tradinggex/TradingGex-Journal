@@ -1,12 +1,13 @@
 import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
-import { getDictionary } from "@/lib/i18n";
+import { getDictionary, getLocale } from "@/lib/i18n";
 import {
   computeStats,
   buildEquityCurve,
   buildRDistribution,
   buildSetupStats,
   buildMonthlyStats,
+  buildInstrumentMix,
 } from "@/lib/analytics";
 import { formatCurrency, formatPercent } from "@/lib/formatters";
 import { EquityCurveChart } from "@/components/dashboard/EquityCurveChart";
@@ -14,12 +15,13 @@ import { DrawdownChart } from "@/components/analytics/DrawdownChart";
 import { RDistributionChart } from "@/components/analytics/RDistributionChart";
 import { MonthlyChart } from "@/components/analytics/MonthlyChart";
 import { SetupStatsTable } from "@/components/analytics/SetupStatsTable";
+import { InstrumentMixChart } from "@/components/analytics/InstrumentMixChart";
 
 export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
   const user = await requireUser();
-  const dict = await getDictionary();
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
   const d = dict.analytics;
 
   const { data: rawTrades } = await supabase
@@ -37,11 +39,12 @@ export default async function AnalyticsPage() {
     rMultiple: t.rMultiple ?? null,
   }));
 
-  const stats = computeStats(trades);
-  const equityCurve = buildEquityCurve(trades);
+  const stats = computeStats(trades, locale);
+  const equityCurve = buildEquityCurve(trades, locale);
   const rDist = buildRDistribution(trades);
   const setupStats = buildSetupStats(trades);
   const monthly = buildMonthlyStats(trades);
+  const instrumentMix = buildInstrumentMix(trades);
 
   const rCount = rDist.reduce((s, r) => s + r.count, 0);
 
@@ -151,6 +154,12 @@ export default async function AnalyticsPage() {
           <div className="card-label">{d.monthlyPnl}</div>
           <MonthlyChart data={monthly} />
         </div>
+      </div>
+
+      {/* Instrument Mix */}
+      <div className="card p-5 max-w-sm">
+        <div className="card-label">{d.instrumentMix}</div>
+        <InstrumentMixChart data={instrumentMix} />
       </div>
 
       {/* Setup Breakdown */}

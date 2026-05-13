@@ -1205,6 +1205,16 @@ export const TradeScalarFieldEnum = {
   notes: 'notes',
   mistakes: 'mistakes',
   lessonsLearned: 'lessonsLearned',
+  optionType: 'optionType',
+  strikePrice: 'strikePrice',
+  expirationDate: 'expirationDate',
+  premium: 'premium',
+  delta: 'delta',
+  gamma: 'gamma',
+  theta: 'theta',
+  vega: 'vega',
+  openInterest: 'openInterest',
+  impliedVolatility: 'impliedVolatility',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1341,6 +1351,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt'
+ */
+export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt[]'
+ */
+export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
     
 
 /**

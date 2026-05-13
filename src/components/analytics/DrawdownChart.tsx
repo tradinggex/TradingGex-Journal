@@ -9,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface DrawdownChartProps {
   data: { index: number; drawdown: number; date: string }[];
@@ -34,10 +35,12 @@ function CustomTooltip({
 }
 
 export function DrawdownChart({ data }: DrawdownChartProps) {
+  const t = useTranslation();
+
   if (data.length === 0) {
     return (
       <div className="h-40 flex items-center justify-center text-fg-subtle text-sm font-mono">
-        Sin datos de drawdown
+        {t("analytics.noDrawdownData")}
       </div>
     );
   }

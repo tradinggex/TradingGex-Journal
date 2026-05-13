@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
-import { getDictionary } from "@/lib/i18n";
+import { getDictionary, getLocale } from "@/lib/i18n";
 import {
   computeStats,
   buildEquityCurve,
@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const dict = await getDictionary();
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
   const d = dict.dashboard;
 
   const [{ data: rawTrades }, { data: last10Raw }] = await Promise.all([
@@ -47,8 +47,8 @@ export default async function DashboardPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const last10 = last10Raw ?? [] as any[];
 
-  const stats = computeStats(trades);
-  const equityCurve = buildEquityCurve(trades);
+  const stats = computeStats(trades, locale);
+  const equityCurve = buildEquityCurve(trades, locale);
   const dailyPnl = buildDailyPnl(trades);
   const setupStats = buildSetupStats(trades);
 

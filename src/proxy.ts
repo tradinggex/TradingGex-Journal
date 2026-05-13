@@ -2,7 +2,7 @@ import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
 const PUBLIC_EXACT = new Set(["/login", "/register", "/forgot-password", "/reset-password"]);
-const PUBLIC_PREFIX = ["/_next/", "/favicon.ico", "/uploads/", "/api/auth/"];
+const PUBLIC_PREFIX = ["/_next/", "/favicon.ico", "/uploads/", "/api/auth/", "/api/webhooks/"];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;

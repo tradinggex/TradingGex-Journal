@@ -166,6 +166,16 @@ export const TradeScalarFieldEnum = {
   notes: 'notes',
   mistakes: 'mistakes',
   lessonsLearned: 'lessonsLearned',
+  optionType: 'optionType',
+  strikePrice: 'strikePrice',
+  expirationDate: 'expirationDate',
+  premium: 'premium',
+  delta: 'delta',
+  gamma: 'gamma',
+  theta: 'theta',
+  vega: 'vega',
+  openInterest: 'openInterest',
+  impliedVolatility: 'impliedVolatility',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

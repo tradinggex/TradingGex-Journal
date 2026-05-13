@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatCurrency, formatR, formatDateTime } from "@/lib/formatters";
 import { MARKETS } from "@/lib/constants";
 import { useTranslation } from "@/lib/i18n/context";
+import { ClipboardList } from "lucide-react";
 
 interface TradeRow {
   id: string;
@@ -55,7 +56,7 @@ export function TradeTable({ trades }: TradeTableProps) {
     return (
       <div className="card">
         <div className="px-6 py-16 text-center">
-          <div className="text-4xl mb-3">📋</div>
+          <ClipboardList size={36} strokeWidth={1.25} className="mx-auto mb-3 text-fg-subtle/30" />
           <div className="text-fg-muted font-semibold mb-1">{t("trades.noTrades")}</div>
           <div className="text-slate-500 text-sm">{t("trades.noTradesHint")}</div>
         </div>

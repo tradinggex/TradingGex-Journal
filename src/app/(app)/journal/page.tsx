@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n";
 import Link from "next/link";
 import { EMOTIONS } from "@/lib/constants";
 import { formatDate } from "@/lib/formatters";
+import { BookOpen, BarChart3 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,7 @@ export default async function JournalPage() {
 
       {(entries ?? []).length === 0 ? (
         <div className="card px-6 py-16 text-center">
-          <div className="text-4xl mb-3">📓</div>
+          <BookOpen size={36} strokeWidth={1.25} className="mx-auto mb-3 text-fg-subtle/30" />
           <div className="text-fg-muted font-semibold mb-1">{d.noEntries}</div>
           <div className="text-fg-subtle text-sm">{d.noEntriesHint}</div>
         </div>
@@ -59,8 +60,8 @@ export default async function JournalPage() {
                         {formatDate(entry.date)}
                       </span>
                       {emotion && (
-                        <span className="text-xs text-fg-muted flex items-center gap-1">
-                          <span>{emotion.emoji}</span>
+                        <span className="text-xs text-fg-muted flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: emotion.color }} />
                           <span>{emotion.label}</span>
                         </span>
                       )}
@@ -79,8 +80,9 @@ export default async function JournalPage() {
 
                     <div className="flex items-center gap-4 mb-2">
                       {entry.marketCondition && (
-                        <span className="text-xs text-fg-subtle">
-                          📊 {entry.marketCondition}
+                        <span className="text-xs text-fg-subtle flex items-center gap-1">
+                          <BarChart3 size={11} strokeWidth={1.75} className="shrink-0" />
+                          {entry.marketCondition}
                         </span>
                       )}
                       {entry.disciplineScore !== null && (

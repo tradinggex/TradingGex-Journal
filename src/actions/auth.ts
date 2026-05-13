@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { supabase } from "@/lib/supabase";
 import { createSession, deleteSession } from "@/lib/session";
+import { sendWelcomeEmail } from "@/lib/email";
 
 const registerSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").trim(),
@@ -50,15 +51,23 @@ export async function register(state: AuthState, formData: FormData): Promise<Au
 
     const passwordHash = await bcrypt.hash(password, 12);
     const id = crypto.randomUUID();
-    const now = new Date().toISOString();
+    const now = new Date();
+    const trialEndsAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
     const { data: user, error } = await supabase
       .from("User")
-      .insert({ id, name, email, passwordHash, createdAt: now, updatedAt: now })
+      .insert({
+        id, name, email, passwordHash,
+        subscriptionStatus: "trialing",
+        trialEndsAt,
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
+      })
       .select("id, email, name")
       .single();
 
     if (error || !user) throw error ?? new Error("Failed to create user");
     await createSession(user.id, user.email, user.name);
+    void sendWelcomeEmail(user.email, user.name);
   } catch (err) {
     console.error("[register]", err);
     return { message: "Error al conectar con la base de datos. Intenta de nuevo." };
@@ -95,6 +104,11 @@ export async function login(state: AuthState, formData: FormData): Promise<AuthS
     if (!valid) {
       return { message: "Email o contraseña incorrectos" };
     }
+
+    await supabase
+      .from("User")
+      .update({ lastLoginAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
+      .eq("id", user.id);
 
     await createSession(user.id, user.email, user.name);
   } catch (err) {

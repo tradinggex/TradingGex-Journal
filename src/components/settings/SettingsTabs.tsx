@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { MARKETS } from "@/lib/constants";
 import { useTranslation } from "@/lib/i18n/context";
@@ -568,7 +567,6 @@ const LOCALES: { value: Locale; flag: string }[] = [
 
 function LanguageTab() {
   const t = useTranslation();
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [selected, setSelected] = useState<Locale | null>(null);
 
@@ -576,8 +574,7 @@ function LanguageTab() {
     setSelected(locale);
     startTransition(async () => {
       await setLocale(locale);
-      toast.success(t("settings.language.saved"));
-      router.refresh();
+      window.location.reload();
     });
   }
 

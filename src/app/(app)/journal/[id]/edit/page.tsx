@@ -18,11 +18,14 @@ export default async function EditJournalPage({ params }: PageProps) {
 
   const { data: entry } = await supabase
     .from("JournalEntry")
-    .select("*")
+    .select("*, screenshots:Screenshot(*)")
     .eq("id", id)
     .eq("userId", user.userId)
+    .order("createdAt", { referencedTable: "screenshots", ascending: true })
     .maybeSingle();
   if (!entry) notFound();
+
+  const { screenshots, ...entryData } = entry;
 
   return (
     <div className="space-y-5">
@@ -35,7 +38,7 @@ export default async function EditJournalPage({ params }: PageProps) {
         <h1 className="text-2xl font-black text-slate-100 tracking-tight">{dict.topbar.editTrade}</h1>
         <p className="text-sm text-slate-500 font-mono mt-0.5">{entry.date}</p>
       </div>
-      <JournalForm editEntry={entry} marketConditions={[...dict.marketConditions]} />
+      <JournalForm editEntry={entryData} editScreenshots={screenshots ?? []} marketConditions={[...dict.marketConditions]} />
     </div>
   );
 }
