@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { logout } from "@/actions/auth";
 import { useTranslation } from "@/lib/i18n/context";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2, CreditCard } from "lucide-react";
+import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2, CreditCard, Sparkles } from "lucide-react";
 
 interface TopNavProps {
   userEmail?: string;
@@ -34,17 +34,19 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
   }, [mobileOpen]);
 
   const NAV_ICONS = {
-    "/":           LayoutDashboard,
-    "/trades":     TrendingUp,
-    "/analytics":  BarChart3,
-    "/journal":    BookOpen,
-    "/settings":   Settings2,
+    "/dashboard": LayoutDashboard,
+    "/trades":    TrendingUp,
+    "/analytics": BarChart3,
+    "/mentor":    Sparkles,
+    "/journal":   BookOpen,
+    "/settings":  Settings2,
   };
 
   const navItems = [
-    { href: "/",           label: t("nav.dashboard") },
+    { href: "/dashboard",  label: t("nav.dashboard") },
     { href: "/trades",     label: t("nav.trades") },
     { href: "/analytics",  label: t("nav.analytics") },
+    { href: "/mentor",     label: t("nav.mentor") },
     { href: "/journal",    label: t("nav.journal") },
     { href: "/settings",   label: t("nav.settings") },
   ];
@@ -77,7 +79,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1 flex-1">
             {navItems.map(({ href, label }) => {
-              const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+              const active = pathname.startsWith(href);
               return (
                 <Link
                   key={href}
@@ -194,7 +196,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
             {/* Nav links */}
             <nav className="flex-1 p-4 pt-6 space-y-1 overflow-y-auto">
               {navItems.map(({ href, label }) => {
-                const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+                const active = pathname.startsWith(href);
                 const Icon = NAV_ICONS[href as keyof typeof NAV_ICONS];
                 return (
                   <Link

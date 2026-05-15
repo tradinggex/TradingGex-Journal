@@ -9,6 +9,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://tradinggexjournal.com"),
   title: "TradingGex Journal",
   description: "Journal de trading para futuros: CME, Crypto, Forex",
   manifest: "/manifest.json",

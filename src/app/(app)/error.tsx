@@ -30,7 +30,7 @@ export default function AppError({
           Reintentar
         </button>
         <Link
-          href="/"
+          href="/dashboard"
           className="border border-[var(--border)] text-fg-muted hover:text-foreground text-sm px-4 py-2 rounded-xl transition-colors"
         >
           Ir al inicio

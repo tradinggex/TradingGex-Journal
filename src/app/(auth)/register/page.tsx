@@ -13,7 +13,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (state?.success) {
-      router.replace("/");
+      router.replace("/dashboard");
     }
   }, [state, router]);
 

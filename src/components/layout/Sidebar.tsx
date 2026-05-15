@@ -13,11 +13,11 @@ interface SidebarProps {
 }
 
 const NAV_ICONS = {
-  "/":           LayoutDashboard,
-  "/trades":     TrendingUp,
-  "/analytics":  BarChart3,
-  "/journal":    BookOpen,
-  "/settings":   Settings2,
+  "/dashboard": LayoutDashboard,
+  "/trades":    TrendingUp,
+  "/analytics": BarChart3,
+  "/journal":   BookOpen,
+  "/settings":  Settings2,
 };
 
 export function Sidebar({ userEmail, userName }: SidebarProps) {
@@ -29,7 +29,7 @@ export function Sidebar({ userEmail, userName }: SidebarProps) {
     : userEmail?.[0]?.toUpperCase() ?? "TG";
 
   const navItems = [
-    { href: "/",           label: t("nav.dashboard") },
+    { href: "/dashboard",  label: t("nav.dashboard") },
     { href: "/trades",     label: t("nav.trades") },
     { href: "/analytics",  label: t("nav.analytics") },
     { href: "/journal",    label: t("nav.journal") },
@@ -54,7 +54,7 @@ export function Sidebar({ userEmail, userName }: SidebarProps) {
       {/* Nav */}
       <nav className="flex-1 px-3 space-y-0.5">
         {navItems.map((item) => {
-          const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const active = pathname.startsWith(item.href);
           const Icon = NAV_ICONS[item.href as keyof typeof NAV_ICONS];
           return (
             <Link

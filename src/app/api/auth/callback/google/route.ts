@@ -112,7 +112,7 @@ export async function GET(request: Request) {
       .eq("id", userId);
 
     await createSession(userId, userInfo.email, userName);
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   } catch (err) {
     console.error("Google OAuth error:", err);
     return NextResponse.redirect(new URL("/login?error=oauth", request.url));

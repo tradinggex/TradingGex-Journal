@@ -11,7 +11,7 @@ export function TopBar() {
 
   function getPage(): { title: string; subtitle: string } {
     const map: Record<string, { title: string; subtitle: string }> = {
-      "/": { title: t("topbar.dashboard"), subtitle: t("topbar.dashboardSub") },
+      "/dashboard": { title: t("topbar.dashboard"), subtitle: t("topbar.dashboardSub") },
       "/trades": { title: t("topbar.trades"), subtitle: t("topbar.tradesSub") },
       "/trades/new": { title: t("topbar.newTrade"), subtitle: t("topbar.newTradeSub") },
       "/analytics": { title: t("topbar.analytics"), subtitle: t("topbar.analyticsSub") },
