@@ -106,7 +106,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
                 href="/billing"
                 className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-400/10 border border-amber-400/25 text-amber-400 text-xs font-semibold hover:bg-amber-400/15 transition-colors"
               >
-                {trialDaysLeft === 0 ? "Prueba: último día" : `Prueba: ${trialDaysLeft}d`}
+                Free
               </Link>
             )}
             {/* Billing link for active subscribers */}
@@ -222,7 +222,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-amber-400 hover:bg-amber-400/10 transition-all"
                 >
                   <CreditCard size={15} strokeWidth={1.75} className="shrink-0" />
-                  {subscriptionStatus === "active" ? "Facturación (Pro)" : `Prueba gratuita — ${trialDaysLeft}d restante${trialDaysLeft !== 1 ? "s" : ""}`}
+                  {subscriptionStatus === "active" ? "Pro" : "Free"}
                 </Link>
               </div>
             )}
