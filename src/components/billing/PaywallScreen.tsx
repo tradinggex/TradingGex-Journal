@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BarChart3, TrendingUp, LineChart, BookOpen, Camera, Globe, Check } from "lucide-react";
 import type { SubscriptionStatus } from "@/lib/subscription";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Props {
   subscriptionStatus: SubscriptionStatus;
@@ -10,16 +11,8 @@ interface Props {
   userEmail: string;
 }
 
-const FEATURES = [
-  { Icon: BarChart3,   title: "Dashboard completo",            desc: "Equity curve, calendario de P&L y estadísticas en tiempo real" },
-  { Icon: TrendingUp,  title: "Registro ilimitado de trades",  desc: "Futuros CME, Crypto, Forex, Opciones y más" },
-  { Icon: LineChart,   title: "Analítica avanzada",            desc: "Win rate, profit factor, drawdown, distribución de R" },
-  { Icon: BookOpen,    title: "Diario emocional",              desc: "Seguimiento de psicología y disciplina por sesión" },
-  { Icon: Camera,      title: "Capturas de pantalla",          desc: "Adjunta imágenes a cada operación para revisión" },
-  { Icon: Globe,       title: "Multi-idioma",                  desc: "Español, inglés y portugués incluidos" },
-];
-
 export function PaywallScreen({ subscriptionStatus, trialEndsAt, userEmail }: Props) {
+  const t = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +21,15 @@ export function PaywallScreen({ subscriptionStatus, trialEndsAt, userEmail }: Pr
     (!trialEndsAt || new Date(trialEndsAt) <= new Date());
 
   const isPastDue = subscriptionStatus === "past_due";
+
+  const FEATURES = [
+    { Icon: BarChart3,  title: t("paywall.features.dashboard"),   desc: t("paywall.features.dashboardDesc") },
+    { Icon: TrendingUp, title: t("paywall.features.trades"),      desc: t("paywall.features.tradesDesc") },
+    { Icon: LineChart,  title: t("paywall.features.analytics"),   desc: t("paywall.features.analyticsDesc") },
+    { Icon: BookOpen,   title: t("paywall.features.journal"),     desc: t("paywall.features.journalDesc") },
+    { Icon: Camera,     title: t("paywall.features.screenshots"), desc: t("paywall.features.screenshotsDesc") },
+    { Icon: Globe,      title: t("paywall.features.multilang"),   desc: t("paywall.features.multilangDesc") },
+  ];
 
   async function handleSubscribe() {
     setLoading(true);
@@ -38,11 +40,11 @@ export function PaywallScreen({ subscriptionStatus, trialEndsAt, userEmail }: Pr
       if (json.url) {
         window.location.href = json.url;
       } else {
-        setError("No se pudo iniciar el proceso de pago. Intenta de nuevo.");
+        setError(t("paywall.errorGeneric"));
         setLoading(false);
       }
     } catch {
-      setError("Error de red. Intenta de nuevo.");
+      setError(t("paywall.errorNetwork"));
       setLoading(false);
     }
   }
@@ -58,26 +60,26 @@ export function PaywallScreen({ subscriptionStatus, trialEndsAt, userEmail }: Pr
 
           {trialExpired && (
             <>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-2">Tu prueba gratuita ha terminado</h1>
-              <p className="text-fg-subtle mt-2 text-sm sm:text-base max-w-md mx-auto">Suscríbete para seguir accediendo a tu journal de trading y todos tus datos.</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-2">{t("paywall.trialExpiredTitle")}</h1>
+              <p className="text-fg-subtle mt-2 text-sm sm:text-base max-w-md mx-auto">{t("paywall.trialExpiredDesc")}</p>
             </>
           )}
           {isPastDue && (
             <>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-2">Pago pendiente</h1>
-              <p className="text-fg-subtle mt-2 text-sm max-w-md mx-auto">Hubo un problema con tu pago. Actualiza tu método de pago para recuperar el acceso.</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-2">{t("paywall.pastDueTitle")}</h1>
+              <p className="text-fg-subtle mt-2 text-sm max-w-md mx-auto">{t("paywall.pastDueDesc")}</p>
             </>
           )}
           {subscriptionStatus === "canceled" && (
             <>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-2">Tu suscripción ha sido cancelada</h1>
-              <p className="text-fg-subtle mt-2 text-sm max-w-md mx-auto">Vuelve a suscribirte para acceder a TradingGex Journal.</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-2">{t("paywall.canceledTitle")}</h1>
+              <p className="text-fg-subtle mt-2 text-sm max-w-md mx-auto">{t("paywall.canceledDesc")}</p>
             </>
           )}
           {!trialExpired && !isPastDue && subscriptionStatus !== "canceled" && (
             <>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-2">Activa tu suscripción</h1>
-              <p className="text-fg-subtle mt-2 text-sm max-w-md mx-auto">Acceso completo a TradingGex Journal.</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-2">{t("paywall.defaultTitle")}</h1>
+              <p className="text-fg-subtle mt-2 text-sm max-w-md mx-auto">{t("paywall.defaultDesc")}</p>
             </>
           )}
         </div>
@@ -88,9 +90,9 @@ export function PaywallScreen({ subscriptionStatus, trialEndsAt, userEmail }: Pr
           <div className="bg-gradient-to-r from-purple-500/10 to-purple-700/10 border-b border-purple-500/20 px-6 py-5 text-center">
             <div className="flex items-baseline justify-center gap-1">
               <span className="text-4xl font-black text-foreground">$19.99</span>
-              <span className="text-fg-subtle text-sm">/mes</span>
+              <span className="text-fg-subtle text-sm">{t("paywall.perMonth")}</span>
             </div>
-            <p className="text-xs text-purple-400 mt-1 font-medium">Facturación mensual · Cancela cuando quieras</p>
+            <p className="text-xs text-purple-400 mt-1 font-medium">{t("paywall.billingNote")}</p>
           </div>
 
           {/* Features grid */}
@@ -118,21 +120,21 @@ export function PaywallScreen({ subscriptionStatus, trialEndsAt, userEmail }: Pr
               className="w-full py-3.5 rounded-xl bg-purple-500 hover:bg-purple-400 active:bg-purple-600 text-white text-sm font-bold transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ boxShadow: "0 0 20px rgba(168,85,247,0.3)" }}
             >
-              {loading ? "Redirigiendo a pago…" : isPastDue ? "Actualizar método de pago" : "Suscribirme ahora — $19.99/mes"}
+              {loading ? t("paywall.redirecting") : isPastDue ? t("paywall.updatePayment") : t("paywall.subscribe")}
             </button>
             <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-fg-subtle">
               <Check size={11} strokeWidth={2.5} className="text-emerald-400" />
-              <span>Pago seguro con Stripe · Cancela en cualquier momento</span>
+              <span>{t("paywall.securePayment")}</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
         <p className="text-xs text-fg-subtle text-center">
-          Sesión iniciada como{" "}
+          {t("paywall.loggedAs")}{" "}
           <span className="text-foreground font-medium">{userEmail}</span>
           {" · "}
-          <a href="/login" className="underline underline-offset-2 hover:text-foreground transition-colors">Cambiar cuenta</a>
+          <a href="/login" className="underline underline-offset-2 hover:text-foreground transition-colors">{t("paywall.switchAccount")}</a>
         </p>
       </div>
     </div>
