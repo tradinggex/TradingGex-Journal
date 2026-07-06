@@ -57,7 +57,6 @@ export default async function DashboardPage() {
     symbol: t.instrument?.symbol ?? "—",
     direction: t.direction,
     entryAt: t.entryAt,
-    dateKey: new Date(t.entryAt).toISOString().slice(0, 10),
     entryPrice: t.entryPrice,
     exitPrice: t.exitPrice ?? null,
     netPnl: t.netPnl,

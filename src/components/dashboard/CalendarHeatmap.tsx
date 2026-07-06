@@ -16,7 +16,7 @@ export interface CalendarTrade {
   symbol: string;
   direction: "LONG" | "SHORT";
   entryAt: string;
-  dateKey: string; // UTC date "YYYY-MM-DD", pre-computed server-side to avoid timezone mismatch
+  dateKey?: string;
   entryPrice: number;
   exitPrice: number | null;
   netPnl: number;
@@ -312,7 +312,7 @@ export function CalendarHeatmap({ dailyPnl, trades = [] }: CalendarHeatmapProps)
   // Data for the selected day — match by UTC date the same way buildDailyPnl does
   const selectedPnl = selectedDate != null ? dailyPnl[selectedDate] : undefined;
   const selectedTrades = selectedDate != null
-    ? trades.filter((t) => t.dateKey === selectedDate)
+    ? trades.filter((t) => (t.dateKey ?? new Date(t.entryAt).toISOString().slice(0, 10)) === selectedDate)
     : [];
 
   return (
