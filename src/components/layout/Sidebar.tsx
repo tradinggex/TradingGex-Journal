@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { logout } from "@/actions/auth";
 import { useTranslation } from "@/lib/i18n/context";
-import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2 } from "lucide-react";
+import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2, Sparkles } from "lucide-react";
 
 interface SidebarProps {
   userEmail?: string;
@@ -16,6 +16,7 @@ const NAV_ICONS = {
   "/dashboard": LayoutDashboard,
   "/trades":    TrendingUp,
   "/analytics": BarChart3,
+  "/mentor":    Sparkles,
   "/journal":   BookOpen,
   "/settings":  Settings2,
 };
@@ -32,6 +33,7 @@ export function Sidebar({ userEmail, userName }: SidebarProps) {
     { href: "/dashboard",  label: t("nav.dashboard") },
     { href: "/trades",     label: t("nav.trades") },
     { href: "/analytics",  label: t("nav.analytics") },
+    { href: "/mentor",     label: t("nav.mentor") },
     { href: "/journal",    label: t("nav.journal") },
     { href: "/settings",   label: t("nav.settings") },
   ];
