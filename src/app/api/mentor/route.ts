@@ -1,11 +1,11 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
 import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 
 const SYSTEM_PROMPT = `You are an expert trading mentor and performance coach specializing in ICT (Inner Circle Trader) methodology and futures trading psychology.
 
@@ -26,7 +26,6 @@ export async function GET(req: NextRequest) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
-  // Fetch trades
   const { data: trades } = await supabase
     .from("Trade")
     .select("*, instrument:Instrument(*), setup:Setup(*)")
@@ -40,7 +39,6 @@ export async function GET(req: NextRequest) {
     return new Response(JSON.stringify({ error: "not_enough_trades" }), { status: 400 });
   }
 
-  // Fetch journal entries
   const { data: journals } = await supabase
     .from("JournalEntry")
     .select("*")
@@ -48,7 +46,6 @@ export async function GET(req: NextRequest) {
     .order("date", { ascending: false })
     .limit(60);
 
-  // Build stats
   const closed = trades;
   const wins = closed.filter((t) => t.netPnl > 0);
   const losses = closed.filter((t) => t.netPnl < 0);
@@ -60,7 +57,6 @@ export async function GET(req: NextRequest) {
   const rTrades = closed.filter((t) => t.rMultiple !== null);
   const avgR = rTrades.length > 0 ? rTrades.reduce((s, t) => s + t.rMultiple, 0) / rTrades.length : null;
 
-  // By instrument
   const byInstrument: Record<string, { count: number; pnl: number; wins: number }> = {};
   for (const t of closed) {
     const sym = t.instrument?.symbol ?? "Unknown";
@@ -70,7 +66,6 @@ export async function GET(req: NextRequest) {
     if (t.netPnl > 0) byInstrument[sym].wins++;
   }
 
-  // By setup
   const bySetup: Record<string, { count: number; pnl: number; wins: number }> = {};
   for (const t of closed) {
     const name = t.setup?.name ?? "No Setup";
@@ -80,7 +75,6 @@ export async function GET(req: NextRequest) {
     if (t.netPnl > 0) bySetup[name].wins++;
   }
 
-  // By emotion
   const byEmotion: Record<string, { count: number; pnl: number }> = {};
   for (const t of closed) {
     if (!t.emotion) continue;
@@ -122,25 +116,28 @@ ${journals && journals.length > 0 ? `**Journal insights (last ${journals.length}
 
 Please analyze my trading performance and give me specific, actionable feedback.`;
 
-  const encoder = new TextEncoder();
-
-  const stream = client.messages.stream({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4096,
-    system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
-    messages: [{ role: "user", content: userMessage }],
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    systemInstruction: SYSTEM_PROMPT,
   });
 
+  const encoder = new TextEncoder();
+
   const readable = new ReadableStream<Uint8Array>({
-    start(controller) {
-      stream.on("text", (delta) => controller.enqueue(encoder.encode(delta)));
-      stream.on("end", () => controller.close());
-      stream.on("error", (err: { message?: string }) => {
-        controller.enqueue(encoder.encode(`\x00ERR\x00${err.message ?? "Anthropic API error"}`));
+    async start(controller) {
+      try {
+        const result = await model.generateContentStream(userMessage);
+        for await (const chunk of result.stream) {
+          const text = chunk.text();
+          if (text) controller.enqueue(encoder.encode(text));
+        }
         controller.close();
-      });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Gemini API error";
+        controller.enqueue(encoder.encode(`\x00ERR\x00${msg}`));
+        controller.close();
+      }
     },
-    cancel() { stream.abort(); },
   });
 
   return new Response(readable, {
