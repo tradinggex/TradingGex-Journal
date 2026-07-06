@@ -106,7 +106,7 @@ export function MentorView({ tradeCount }: { tradeCount: number }) {
               <button
                 type="button"
                 onClick={startAnalysis}
-                disabled={!canAnalyze || status === "loading"}
+                disabled={!canAnalyze}
                 className="px-5 py-2 rounded-xl bg-purple-500 hover:bg-purple-400 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
               >
                 {t("mentor.generate")}
