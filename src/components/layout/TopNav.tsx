@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { logout } from "@/actions/auth";
 import { useTranslation } from "@/lib/i18n/context";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2, CreditCard } from "lucide-react";
+import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2, CreditCard, Sparkles } from "lucide-react";
 
 interface TopNavProps {
   userEmail?: string;
@@ -37,6 +37,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
     "/dashboard": LayoutDashboard,
     "/trades":    TrendingUp,
     "/analytics": BarChart3,
+    "/mentor":    Sparkles,
     "/journal":   BookOpen,
     "/settings":  Settings2,
   };
@@ -45,6 +46,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
     { href: "/dashboard",  label: t("nav.dashboard") },
     { href: "/trades",     label: t("nav.trades") },
     { href: "/analytics",  label: t("nav.analytics") },
+    { href: "/mentor",     label: t("nav.mentor") },
     { href: "/journal",    label: t("nav.journal") },
     { href: "/settings",   label: t("nav.settings") },
   ];

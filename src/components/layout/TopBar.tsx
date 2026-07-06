@@ -15,6 +15,7 @@ export function TopBar() {
       "/trades": { title: t("topbar.trades"), subtitle: t("topbar.tradesSub") },
       "/trades/new": { title: t("topbar.newTrade"), subtitle: t("topbar.newTradeSub") },
       "/analytics": { title: t("topbar.analytics"), subtitle: t("topbar.analyticsSub") },
+      "/mentor": { title: t("topbar.mentor"), subtitle: t("topbar.mentorSub") },
       "/journal": { title: t("topbar.journal"), subtitle: t("topbar.journalSub") },
       "/journal/new": { title: t("topbar.newJournal"), subtitle: t("topbar.newJournalSub") },
       "/settings": { title: t("topbar.settings"), subtitle: t("topbar.settingsSub") },
