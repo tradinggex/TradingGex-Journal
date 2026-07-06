@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { supabase } from "@/lib/supabase";
 
-export const config = { api: { bodyParser: false } };
+export const dynamic = "force-dynamic";
 
 async function updateUserSubscription(
   customerId: string,
