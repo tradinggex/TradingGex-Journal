@@ -95,7 +95,7 @@ export default async function LandingPage() {
           {/* Social proof stats */}
           <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-sm text-[#64748b]">
             {[
-              { value: "3-day", label: "free trial" },
+              { value: "5-day", label: "free trial" },
               { value: "$19.99", label: "per month" },
               { value: "EN / ES / PT", label: "languages" },
             ].map(({ value, label }) => (
@@ -258,7 +258,7 @@ export default async function LandingPage() {
             <div className="flex-1 md:max-w-sm rounded-2xl border border-white/10 bg-[#141725] p-6 sm:p-8">
               <div className="text-sm font-semibold text-[#94a3b8] mb-1">Free Trial</div>
               <div className="text-4xl font-black text-white mb-1">$0</div>
-              <div className="text-sm text-[#64748b] mb-5 sm:mb-6">3 days, no credit card needed</div>
+              <div className="text-sm text-[#64748b] mb-5 sm:mb-6">5 days, no credit card needed</div>
               <ul className="space-y-2.5 sm:space-y-3 mb-6 sm:mb-8">
                 {[
                   "Unlimited trade logging",
@@ -314,7 +314,7 @@ export default async function LandingPage() {
                 href="/register"
                 className="block text-center bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm py-3 rounded-xl transition-all shadow-lg shadow-purple-500/30"
               >
-                Start 3-Day Free Trial →
+                Start 5-Day Free Trial →
               </Link>
               <p className="text-center text-[11px] text-[#64748b] mt-3">
                 Cancel anytime. No commitment.
@@ -401,7 +401,7 @@ export default async function LandingPage() {
                 Start Your Free Trial
                 <ChevronRight size={18} />
               </Link>
-              <p className="text-xs text-[#64748b] mt-4">3 days free · No credit card · Cancel anytime</p>
+              <p className="text-xs text-[#64748b] mt-4">5 days free · No credit card · Cancel anytime</p>
             </div>
           </div>
         </div>

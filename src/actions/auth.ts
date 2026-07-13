@@ -52,7 +52,7 @@ export async function register(state: AuthState, formData: FormData): Promise<Au
     const passwordHash = await bcrypt.hash(password, 12);
     const id = crypto.randomUUID();
     const now = new Date();
-    const trialEndsAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
+    const trialEndsAt = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString();
     const { data: user, error } = await supabase
       .from("User")
       .insert({

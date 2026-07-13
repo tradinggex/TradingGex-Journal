@@ -60,7 +60,7 @@ export async function GET(request: Request) {
     if (!existingUser) {
       const id = crypto.randomUUID();
       const now = new Date();
-      const trialEndsAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
+      const trialEndsAt = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString();
       const { data: newUser, error } = await supabase
         .from("User")
         .insert({
