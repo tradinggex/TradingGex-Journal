@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { MARKETS, FOREX_SPOT_PAIRS } from "@/lib/constants";
+import { MARKETS } from "@/lib/constants";
 import { useTranslation } from "@/lib/i18n/context";
 import { setLocale } from "@/actions/settings.actions";
 import type { Locale } from "@/lib/i18n/locales/en";
@@ -101,20 +101,6 @@ function InstrumentsTab({ instruments }: { instruments: Instrument[] }) {
     setShowForm(true);
   }
 
-  function quickAddForex(pair: typeof FOREX_SPOT_PAIRS[number]) {
-    setEditing(null);
-    setForm({
-      symbol: pair.symbol,
-      name: pair.name,
-      market: "FOREX",
-      tickSize: String(pair.tickSize),
-      tickValue: "10",
-      currency: "USD",
-      exchange: "",
-      contractSize: "1",
-    });
-    setShowForm(true);
-  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -164,34 +150,6 @@ function InstrumentsTab({ instruments }: { instruments: Instrument[] }) {
         <button className={btnPrimary} onClick={() => { resetForm(); setShowForm(true); }}>
           {t("settings.instruments.add")}
         </button>
-      </div>
-
-      {/* Quick Add Forex Pairs */}
-      <div className="bg-surface2 border border-[var(--border)] rounded-xl p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-fg-subtle uppercase tracking-wider">Forex Spot — Quick Add</span>
-          <span className="text-[10px] text-fg-muted">(tick value = $10/pip lote estándar · edítalo según tu lote)</span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {FOREX_SPOT_PAIRS.map((pair) => {
-            const alreadyAdded = instruments.some((i) => i.symbol === pair.symbol);
-            return (
-              <button
-                key={pair.symbol}
-                type="button"
-                disabled={alreadyAdded}
-                onClick={() => quickAddForex(pair)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold border transition-all ${
-                  alreadyAdded
-                    ? "border-[var(--border)] text-fg-muted opacity-40 cursor-not-allowed"
-                    : "border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
-                }`}
-              >
-                {pair.symbol}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {showForm && (

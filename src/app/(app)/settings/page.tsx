@@ -1,10 +1,35 @@
 import { supabase } from "@/lib/supabase";
 import { getDictionary } from "@/lib/i18n";
 import { SettingsTabs } from "@/components/settings/SettingsTabs";
+import { DEFAULT_INSTRUMENTS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
+  // Seed any DEFAULT_INSTRUMENTS that don't exist yet
+  const { data: existing } = await supabase.from("Instrument").select("symbol");
+  if (existing) {
+    const existingSymbols = new Set(existing.map((i) => i.symbol));
+    const missing = DEFAULT_INSTRUMENTS.filter((d) => !existingSymbols.has(d.symbol));
+    if (missing.length > 0) {
+      await supabase.from("Instrument").insert(
+        missing.map((d) => ({
+          symbol: d.symbol,
+          name: d.name,
+          market: d.market,
+          tickSize: d.tickSize,
+          tickValue: d.tickValue,
+          currency: "USD",
+          exchange: "exchange" in d ? d.exchange : null,
+          contractSize: 1,
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }))
+      );
+    }
+  }
+
   const [instrumentsRes, setupsRes, tagsRes, dict] = await Promise.all([
     supabase.from("Instrument").select("*").order("symbol"),
     supabase.from("Setup").select("*").order("name"),

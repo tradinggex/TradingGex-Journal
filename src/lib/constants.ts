@@ -49,6 +49,17 @@ export const DEFAULT_INSTRUMENTS = [
   { symbol: "6E", name: "Euro FX Futures", market: "FOREX", tickSize: 0.00005, tickValue: 6.25, exchange: "CME" },
   { symbol: "6J", name: "Japanese Yen Futures", market: "FOREX", tickSize: 0.0000005, tickValue: 6.25, exchange: "CME" },
   { symbol: "6B", name: "British Pound Futures", market: "FOREX", tickSize: 0.0001, tickValue: 6.25, exchange: "CME" },
+  // Forex Spot (tick value = $10/pip = 1 standard lot; use Size field for lot sizing)
+  { symbol: "EURUSD", name: "Euro / US Dollar",             market: "FOREX", tickSize: 0.0001, tickValue: 10, exchange: "SPOT" },
+  { symbol: "GBPUSD", name: "British Pound / US Dollar",    market: "FOREX", tickSize: 0.0001, tickValue: 10, exchange: "SPOT" },
+  { symbol: "USDJPY", name: "US Dollar / Japanese Yen",     market: "FOREX", tickSize: 0.01,   tickValue: 10, exchange: "SPOT" },
+  { symbol: "USDCHF", name: "US Dollar / Swiss Franc",      market: "FOREX", tickSize: 0.0001, tickValue: 10, exchange: "SPOT" },
+  { symbol: "AUDUSD", name: "Australian Dollar / US Dollar",market: "FOREX", tickSize: 0.0001, tickValue: 10, exchange: "SPOT" },
+  { symbol: "USDCAD", name: "US Dollar / Canadian Dollar",  market: "FOREX", tickSize: 0.0001, tickValue: 10, exchange: "SPOT" },
+  { symbol: "NZDUSD", name: "New Zealand Dollar / USD",     market: "FOREX", tickSize: 0.0001, tickValue: 10, exchange: "SPOT" },
+  { symbol: "EURGBP", name: "Euro / British Pound",         market: "FOREX", tickSize: 0.0001, tickValue: 10, exchange: "SPOT" },
+  { symbol: "EURJPY", name: "Euro / Japanese Yen",          market: "FOREX", tickSize: 0.01,   tickValue: 10, exchange: "SPOT" },
+  { symbol: "GBPJPY", name: "British Pound / Japanese Yen", market: "FOREX", tickSize: 0.01,   tickValue: 10, exchange: "SPOT" },
   // US Stocks — tickSize 0.01, tickValue 0.01 per share (PnL = Δprice × shares)
   { symbol: "AAPL", name: "Apple Inc.", market: "STOCKS", tickSize: 0.01, tickValue: 0.01, exchange: "NASDAQ" },
   { symbol: "TSLA", name: "Tesla Inc.", market: "STOCKS", tickSize: 0.01, tickValue: 0.01, exchange: "NASDAQ" },
@@ -60,19 +71,6 @@ export const DEFAULT_INSTRUMENTS = [
   { symbol: "GOOGL", name: "Alphabet Inc.", market: "STOCKS", tickSize: 0.01, tickValue: 0.01, exchange: "NASDAQ" },
   { symbol: "SPY", name: "SPDR S&P 500 ETF", market: "STOCKS", tickSize: 0.01, tickValue: 0.01, exchange: "NYSE" },
   { symbol: "QQQ", name: "Invesco QQQ ETF (Nasdaq 100)", market: "STOCKS", tickSize: 0.01, tickValue: 0.01, exchange: "NASDAQ" },
-] as const;
-
-export const FOREX_SPOT_PAIRS = [
-  { symbol: "EURUSD", name: "Euro / US Dollar",          tickSize: 0.0001 },
-  { symbol: "GBPUSD", name: "British Pound / US Dollar", tickSize: 0.0001 },
-  { symbol: "USDJPY", name: "US Dollar / Japanese Yen",  tickSize: 0.01   },
-  { symbol: "USDCHF", name: "US Dollar / Swiss Franc",   tickSize: 0.0001 },
-  { symbol: "AUDUSD", name: "Australian Dollar / USD",   tickSize: 0.0001 },
-  { symbol: "USDCAD", name: "US Dollar / Canadian Dollar",tickSize: 0.0001 },
-  { symbol: "NZDUSD", name: "New Zealand Dollar / USD",  tickSize: 0.0001 },
-  { symbol: "EURGBP", name: "Euro / British Pound",      tickSize: 0.0001 },
-  { symbol: "EURJPY", name: "Euro / Japanese Yen",       tickSize: 0.01   },
-  { symbol: "GBPJPY", name: "British Pound / Japanese Yen", tickSize: 0.01 },
 ] as const;
 
 export const DEFAULT_SETUPS = [
