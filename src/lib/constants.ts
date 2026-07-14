@@ -62,6 +62,19 @@ export const DEFAULT_INSTRUMENTS = [
   { symbol: "QQQ", name: "Invesco QQQ ETF (Nasdaq 100)", market: "STOCKS", tickSize: 0.01, tickValue: 0.01, exchange: "NASDAQ" },
 ] as const;
 
+export const FOREX_SPOT_PAIRS = [
+  { symbol: "EURUSD", name: "Euro / US Dollar",          tickSize: 0.0001 },
+  { symbol: "GBPUSD", name: "British Pound / US Dollar", tickSize: 0.0001 },
+  { symbol: "USDJPY", name: "US Dollar / Japanese Yen",  tickSize: 0.01   },
+  { symbol: "USDCHF", name: "US Dollar / Swiss Franc",   tickSize: 0.0001 },
+  { symbol: "AUDUSD", name: "Australian Dollar / USD",   tickSize: 0.0001 },
+  { symbol: "USDCAD", name: "US Dollar / Canadian Dollar",tickSize: 0.0001 },
+  { symbol: "NZDUSD", name: "New Zealand Dollar / USD",  tickSize: 0.0001 },
+  { symbol: "EURGBP", name: "Euro / British Pound",      tickSize: 0.0001 },
+  { symbol: "EURJPY", name: "Euro / Japanese Yen",       tickSize: 0.01   },
+  { symbol: "GBPJPY", name: "British Pound / Japanese Yen", tickSize: 0.01 },
+] as const;
+
 export const DEFAULT_SETUPS = [
   { name: "Breakout", description: "Ruptura de nivel clave con volumen", color: "#00e5ff" },
   { name: "Break & Retest", description: "Ruptura seguida de retesteo del nivel", color: "#448aff" },
