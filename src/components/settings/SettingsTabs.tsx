@@ -56,8 +56,11 @@ interface FundedAccount {
   firmName: string;
   accountSize: number;
   profitTarget: number | null;
+  profitTargetType: string;
   maxDailyDrawdown: number | null;
+  maxDailyDrawdownType: string;
   maxTotalDrawdown: number | null;
+  maxTotalDrawdownType: string;
   currentBalance: number | null;
   status: string;
   notes: string | null;
@@ -601,15 +604,18 @@ function AccountsTab({ accounts }: { accounts: FundedAccount[] }) {
     firmName: "",
     accountSize: "",
     profitTarget: "",
+    profitTargetType: "pct",
     maxDailyDrawdown: "",
+    maxDailyDrawdownType: "pct",
     maxTotalDrawdown: "",
+    maxTotalDrawdownType: "pct",
     currentBalance: "",
     status: "active",
     notes: "",
   });
 
   function resetForm() {
-    setForm({ accountType: "funded", firmName: "", accountSize: "", profitTarget: "", maxDailyDrawdown: "", maxTotalDrawdown: "", currentBalance: "", status: "active", notes: "" });
+    setForm({ accountType: "funded", firmName: "", accountSize: "", profitTarget: "", profitTargetType: "pct", maxDailyDrawdown: "", maxDailyDrawdownType: "pct", maxTotalDrawdown: "", maxTotalDrawdownType: "pct", currentBalance: "", status: "active", notes: "" });
     setShowForm(false);
     setEditing(null);
   }
@@ -621,8 +627,11 @@ function AccountsTab({ accounts }: { accounts: FundedAccount[] }) {
       firmName: a.firmName,
       accountSize: String(a.accountSize),
       profitTarget: a.profitTarget != null ? String(a.profitTarget) : "",
+      profitTargetType: a.profitTargetType ?? "pct",
       maxDailyDrawdown: a.maxDailyDrawdown != null ? String(a.maxDailyDrawdown) : "",
+      maxDailyDrawdownType: a.maxDailyDrawdownType ?? "pct",
       maxTotalDrawdown: a.maxTotalDrawdown != null ? String(a.maxTotalDrawdown) : "",
+      maxTotalDrawdownType: a.maxTotalDrawdownType ?? "pct",
       currentBalance: a.currentBalance != null ? String(a.currentBalance) : "",
       status: a.status,
       notes: a.notes ?? "",
@@ -637,8 +646,11 @@ function AccountsTab({ accounts }: { accounts: FundedAccount[] }) {
       firmName: form.firmName,
       accountSize: parseFloat(form.accountSize),
       profitTarget: form.profitTarget ? parseFloat(form.profitTarget) : null,
+      profitTargetType: form.profitTargetType,
       maxDailyDrawdown: form.maxDailyDrawdown ? parseFloat(form.maxDailyDrawdown) : null,
+      maxDailyDrawdownType: form.maxDailyDrawdownType,
       maxTotalDrawdown: form.maxTotalDrawdown ? parseFloat(form.maxTotalDrawdown) : null,
+      maxTotalDrawdownType: form.maxTotalDrawdownType,
       currentBalance: form.currentBalance ? parseFloat(form.currentBalance) : null,
       status: form.status,
       notes: form.notes || null,
@@ -781,22 +793,61 @@ function AccountsTab({ accounts }: { accounts: FundedAccount[] }) {
             {/* Profit target */}
             <div>
               <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.profitTarget")}</label>
-              <input className={inputCls} type="number" step="any" placeholder="10" value={form.profitTarget}
-                onChange={(e) => setForm((f) => ({ ...f, profitTarget: e.target.value }))} />
+              <div className="flex gap-1.5">
+                <div className="flex rounded-lg border border-[var(--border)] overflow-hidden shrink-0">
+                  {(["pct", "usd"] as const).map((type) => (
+                    <button key={type} type="button"
+                      onClick={() => setForm((f) => ({ ...f, profitTargetType: type }))}
+                      className={`px-2.5 py-1.5 text-xs font-semibold transition-all ${form.profitTargetType === type ? "bg-purple-500 text-white" : "text-fg-muted hover:text-foreground"}`}>
+                      {type === "pct" ? "%" : "$"}
+                    </button>
+                  ))}
+                </div>
+                <input className={inputCls} type="number" step="any"
+                  placeholder={form.profitTargetType === "pct" ? "10" : "5000"}
+                  value={form.profitTarget}
+                  onChange={(e) => setForm((f) => ({ ...f, profitTarget: e.target.value }))} />
+              </div>
             </div>
 
             {/* Max daily drawdown */}
             <div>
               <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.maxDailyDrawdown")}</label>
-              <input className={inputCls} type="number" step="any" placeholder="5" value={form.maxDailyDrawdown}
-                onChange={(e) => setForm((f) => ({ ...f, maxDailyDrawdown: e.target.value }))} />
+              <div className="flex gap-1.5">
+                <div className="flex rounded-lg border border-[var(--border)] overflow-hidden shrink-0">
+                  {(["pct", "usd"] as const).map((type) => (
+                    <button key={type} type="button"
+                      onClick={() => setForm((f) => ({ ...f, maxDailyDrawdownType: type }))}
+                      className={`px-2.5 py-1.5 text-xs font-semibold transition-all ${form.maxDailyDrawdownType === type ? "bg-purple-500 text-white" : "text-fg-muted hover:text-foreground"}`}>
+                      {type === "pct" ? "%" : "$"}
+                    </button>
+                  ))}
+                </div>
+                <input className={inputCls} type="number" step="any"
+                  placeholder={form.maxDailyDrawdownType === "pct" ? "5" : "2500"}
+                  value={form.maxDailyDrawdown}
+                  onChange={(e) => setForm((f) => ({ ...f, maxDailyDrawdown: e.target.value }))} />
+              </div>
             </div>
 
             {/* Max total drawdown */}
             <div>
               <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.maxTotalDrawdown")}</label>
-              <input className={inputCls} type="number" step="any" placeholder="10" value={form.maxTotalDrawdown}
-                onChange={(e) => setForm((f) => ({ ...f, maxTotalDrawdown: e.target.value }))} />
+              <div className="flex gap-1.5">
+                <div className="flex rounded-lg border border-[var(--border)] overflow-hidden shrink-0">
+                  {(["pct", "usd"] as const).map((type) => (
+                    <button key={type} type="button"
+                      onClick={() => setForm((f) => ({ ...f, maxTotalDrawdownType: type }))}
+                      className={`px-2.5 py-1.5 text-xs font-semibold transition-all ${form.maxTotalDrawdownType === type ? "bg-purple-500 text-white" : "text-fg-muted hover:text-foreground"}`}>
+                      {type === "pct" ? "%" : "$"}
+                    </button>
+                  ))}
+                </div>
+                <input className={inputCls} type="number" step="any"
+                  placeholder={form.maxTotalDrawdownType === "pct" ? "10" : "5000"}
+                  value={form.maxTotalDrawdown}
+                  onChange={(e) => setForm((f) => ({ ...f, maxTotalDrawdown: e.target.value }))} />
+              </div>
             </div>
 
             {/* Notes */}
@@ -848,19 +899,25 @@ function AccountsTab({ accounts }: { accounts: FundedAccount[] }) {
                   {a.profitTarget != null && (
                     <div className="bg-surface2 rounded-lg px-2 py-1.5">
                       <div className="text-[10px] text-fg-muted">Target</div>
-                      <div className="text-xs font-bold text-emerald-400">{a.profitTarget}%</div>
+                      <div className="text-xs font-bold text-emerald-400">
+                        {a.profitTargetType === "usd" ? `$${a.profitTarget.toLocaleString()}` : `${a.profitTarget}%`}
+                      </div>
                     </div>
                   )}
                   {a.maxDailyDrawdown != null && (
                     <div className="bg-surface2 rounded-lg px-2 py-1.5">
                       <div className="text-[10px] text-fg-muted">Daily DD</div>
-                      <div className="text-xs font-bold text-red-400">{a.maxDailyDrawdown}%</div>
+                      <div className="text-xs font-bold text-red-400">
+                        {a.maxDailyDrawdownType === "usd" ? `$${a.maxDailyDrawdown.toLocaleString()}` : `${a.maxDailyDrawdown}%`}
+                      </div>
                     </div>
                   )}
                   {a.maxTotalDrawdown != null && (
                     <div className="bg-surface2 rounded-lg px-2 py-1.5">
                       <div className="text-[10px] text-fg-muted">Max DD</div>
-                      <div className="text-xs font-bold text-red-400">{a.maxTotalDrawdown}%</div>
+                      <div className="text-xs font-bold text-red-400">
+                        {a.maxTotalDrawdownType === "usd" ? `$${a.maxTotalDrawdown.toLocaleString()}` : `${a.maxTotalDrawdown}%`}
+                      </div>
                     </div>
                   )}
                 </div>
