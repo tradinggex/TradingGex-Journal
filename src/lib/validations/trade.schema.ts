@@ -24,6 +24,7 @@ export const tradeSchema = z.object({
   mistakes: z.string().optional().nullable(),
   lessonsLearned: z.string().optional().nullable(),
   tagIds: z.array(z.string()).optional().default([]),
+  fundedAccountId: z.string().optional().nullable(),
   // Options fields — all optional, ignored for non-options trades
   optionType: z.enum(["CALL", "PUT"]).optional().nullable(),
   strikePrice: z.coerce.number().positive().optional().nullable(),

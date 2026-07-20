@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { TradeForm } from "@/components/trades/TradeForm";
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,10 @@ export default async function EditTradePage({ params }: PageProps) {
   const user = await requireUser();
   const { id } = await params;
 
-  const [tradeRes, instrumentsRes, setupsRes, tagsRes, dict] = await Promise.all([
+  const cookieStore = await cookies();
+  const activeAccountId = cookieStore.get("activeAccount")?.value ?? null;
+
+  const [tradeRes, instrumentsRes, setupsRes, tagsRes, accountsRes, dict] = await Promise.all([
     supabase
       .from("Trade")
       .select("*, instrument:Instrument(*), tags:TradeTag(*, tag:Tag(*)), screenshots:Screenshot(*)")
@@ -26,6 +30,7 @@ export default async function EditTradePage({ params }: PageProps) {
     supabase.from("Instrument").select("*").eq("isActive", true).order("symbol"),
     supabase.from("Setup").select("*").eq("isActive", true).order("name"),
     supabase.from("Tag").select("*").order("name"),
+    supabase.from("FundedAccount").select("id, firmName, accountType").eq("userId", user.userId).order("createdAt", { ascending: true }),
     getDictionary(),
   ]);
 
@@ -52,6 +57,8 @@ export default async function EditTradePage({ params }: PageProps) {
         instruments={instrumentsRes.data ?? []}
         setups={setupsRes.data ?? []}
         tags={tagsRes.data ?? []}
+        accounts={accountsRes.data ?? []}
+        defaultAccountId={activeAccountId}
         editTrade={tradeData}
         editScreenshots={screenshots ?? []}
       />

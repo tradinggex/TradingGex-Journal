@@ -2,21 +2,96 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/actions/auth";
+import { setSelectedAccount } from "@/actions/account.actions";
 import { useTranslation } from "@/lib/i18n/context";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2, CreditCard } from "lucide-react";
+import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2, CreditCard, ChevronDown, Wallet, Layers } from "lucide-react";
+
+interface Account {
+  id: string;
+  firmName: string;
+  accountType: string;
+}
 
 interface TopNavProps {
   userEmail?: string;
   userName?: string;
   trialDaysLeft?: number;
   subscriptionStatus?: string | null;
+  accounts?: Account[];
+  activeAccountId?: string | null;
 }
 
-export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus }: TopNavProps) {
+function AccountSwitcher({ accounts, activeAccountId }: { accounts: Account[]; activeAccountId: string | null }) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const ref = useRef<HTMLDivElement>(null);
+  const t = useTranslation();
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  const active = accounts.find((a) => a.id === activeAccountId);
+
+  async function select(id: string | null) {
+    await setSelectedAccount(id);
+    setOpen(false);
+    router.refresh();
+  }
+
+  if (accounts.length === 0) return null;
+
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface2 border border-[var(--border)] text-xs font-medium text-foreground hover:border-purple-500/50 transition-all max-w-[160px]"
+      >
+        <Wallet size={11} className="shrink-0 text-purple-400" />
+        <span className="truncate">{active ? active.firmName : t("nav.allAccounts")}</span>
+        <ChevronDown size={11} className={`shrink-0 text-fg-muted transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-1.5 w-52 bg-surface border border-[var(--border)] rounded-xl shadow-xl z-50 overflow-hidden py-1">
+          <button
+            type="button"
+            onClick={() => select(null)}
+            className={`w-full text-left px-3 py-2 text-xs transition-colors flex items-center gap-2 ${
+              !activeAccountId ? "text-purple-400 bg-purple-500/10" : "text-fg-muted hover:text-foreground hover:bg-surface2"
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60 shrink-0" />
+            {t("nav.allAccounts")}
+          </button>
+          {accounts.map((a) => (
+            <button
+              key={a.id}
+              type="button"
+              onClick={() => select(a.id)}
+              className={`w-full text-left px-3 py-2 text-xs transition-colors flex items-center gap-2 ${
+                activeAccountId === a.id ? "text-purple-400 bg-purple-500/10" : "text-fg-muted hover:text-foreground hover:bg-surface2"
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.accountType === "funded" ? "bg-amber-400" : "bg-emerald-400"}`} />
+              <span className="truncate">{a.firmName}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus, accounts = [], activeAccountId = null }: TopNavProps) {
   const t = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
@@ -38,6 +113,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
     "/trades":    TrendingUp,
     "/analytics": BarChart3,
     "/journal":   BookOpen,
+    "/accounts":  Layers,
     "/settings":  Settings2,
   };
 
@@ -46,6 +122,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
     { href: "/trades",     label: t("nav.trades") },
     { href: "/analytics",  label: t("nav.analytics") },
     { href: "/journal",    label: t("nav.journal") },
+    { href: "/accounts",   label: t("nav.accounts") },
     { href: "/settings",   label: t("nav.settings") },
   ];
 
@@ -73,6 +150,11 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
 
           {/* Vertical divider — desktop only */}
           <div className="hidden md:block h-6 w-px bg-surface3 shrink-0" />
+
+          {/* Account switcher — desktop */}
+          <div className="hidden md:block">
+            <AccountSwitcher accounts={accounts} activeAccountId={activeAccountId} />
+          </div>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1 flex-1">
@@ -191,8 +273,15 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus 
             className="relative flex flex-col w-72 max-w-[85vw] h-full bg-surface"
             style={{ borderRight: "1px solid var(--border)" }}
           >
+            {/* Account switcher — mobile */}
+            {accounts.length > 0 && (
+              <div className="px-4 pt-4">
+                <AccountSwitcher accounts={accounts} activeAccountId={activeAccountId} />
+              </div>
+            )}
+
             {/* Nav links */}
-            <nav className="flex-1 p-4 pt-6 space-y-1 overflow-y-auto">
+            <nav className="flex-1 p-4 pt-3 space-y-1 overflow-y-auto">
               {navItems.map(({ href, label }) => {
                 const active = pathname.startsWith(href);
                 const Icon = NAV_ICONS[href as keyof typeof NAV_ICONS];

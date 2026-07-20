@@ -31,10 +31,18 @@ interface Tag {
   color: string;
 }
 
+interface Account {
+  id: string;
+  firmName: string;
+  accountType: string;
+}
+
 interface TradeFormProps {
   instruments: Instrument[];
   setups: Setup[];
   tags: Tag[];
+  accounts?: Account[];
+  defaultAccountId?: string | null;
   editTrade?: {
     id: string;
     instrumentId: string;
@@ -60,6 +68,7 @@ interface TradeFormProps {
     mistakes: string | null;
     lessonsLearned: string | null;
     tags: { tag: { id: string } }[];
+    fundedAccountId?: string | null;
     // Options fields
     optionType: string | null;
     strikePrice: number | null;
@@ -87,7 +96,7 @@ function toDatetimeLocal(d: Date | string | null | undefined): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-export function TradeForm({ instruments, setups, tags, editTrade, editScreenshots }: TradeFormProps) {
+export function TradeForm({ instruments, setups, tags, accounts = [], defaultAccountId = null, editTrade, editScreenshots }: TradeFormProps) {
   const t = useTranslation();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -118,6 +127,7 @@ export function TradeForm({ instruments, setups, tags, editTrade, editScreenshot
     notes: editTrade?.notes ?? "",
     mistakes: editTrade?.mistakes ?? "",
     lessonsLearned: editTrade?.lessonsLearned ?? "",
+    fundedAccountId: editTrade?.fundedAccountId ?? defaultAccountId ?? "",
     // Options
     optionType: editTrade?.optionType ?? "",
     strikePrice: editTrade?.strikePrice != null ? String(editTrade.strikePrice) : "",
@@ -299,6 +309,7 @@ export function TradeForm({ instruments, setups, tags, editTrade, editScreenshot
       mistakes: form.mistakes || null,
       lessonsLearned: form.lessonsLearned || null,
       tagIds: selectedTags,
+      fundedAccountId: form.fundedAccountId || null,
       // Options — only send when the toggle is on
       optionType: isOptions && form.optionType ? form.optionType : null,
       strikePrice: isOptions && form.strikePrice ? parseFloat(form.strikePrice) : null,
@@ -424,6 +435,22 @@ export function TradeForm({ instruments, setups, tags, editTrade, editScreenshot
               ))}
             </select>
           </div>
+
+          {accounts.length > 0 && (
+            <div>
+              <label className={labelCls}>{t("trades.form.account")}</label>
+              <select
+                className={inputCls}
+                value={form.fundedAccountId}
+                onChange={(e) => setForm((f) => ({ ...f, fundedAccountId: e.target.value }))}
+              >
+                <option value="">{t("trades.form.noAccount")}</option>
+                {accounts.map((a) => (
+                  <option key={a.id} value={a.id}>{a.firmName}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className={labelCls}>{t("trades.form.size")}</label>

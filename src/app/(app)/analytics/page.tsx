@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { getDictionary, getLocale } from "@/lib/i18n";
+import { cookies } from "next/headers";
 import {
   computeStats,
   buildEquityCurve,
@@ -21,16 +22,22 @@ export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
   const user = await requireUser();
+  const cookieStore = await cookies();
+  const activeAccountId = cookieStore.get("activeAccount")?.value ?? null;
+
   const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
   const d = dict.analytics;
 
-  const { data: rawTrades } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let tradesQuery: any = supabase
     .from("Trade")
     .select("*, setup:Setup(*), instrument:Instrument(*)")
     .eq("userId", user.userId)
     .eq("status", "CLOSED")
     .not("netPnl", "is", null)
     .order("entryAt", { ascending: true });
+  if (activeAccountId) tradesQuery = tradesQuery.eq("fundedAccountId", activeAccountId);
+  const { data: rawTrades } = await tradesQuery;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const trades = (rawTrades ?? []).map((t: any) => ({

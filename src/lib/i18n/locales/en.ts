@@ -7,6 +7,8 @@ export const en = {
  journal:"Journal",
  settings:"Settings",
  logout:"Sign out →",
+ allAccounts:"All accounts",
+ accounts:"Accounts",
  },
  topbar: {
  dashboard:"Dashboard",
@@ -194,6 +196,8 @@ export const en = {
  status:"Status",
  setup:"Setup",
  noSetup:"No setup",
+ account:"Account",
+ noAccount:"No account",
  size:"Size (contracts) *",
  entryDate:"Entry date *",
  exitDate:"Exit date",

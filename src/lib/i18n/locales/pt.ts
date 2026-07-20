@@ -9,6 +9,8 @@ export const pt: Dict = {
  journal:"Diário",
  settings:"Configurações",
  logout:"Sair →",
+ allAccounts:"Todas as contas",
+ accounts:"Contas",
  },
  topbar: {
  dashboard:"Dashboard",
@@ -196,6 +198,8 @@ export const pt: Dict = {
  status:"Status",
  setup:"Setup",
  noSetup:"Sem setup",
+ account:"Conta",
+ noAccount:"Sem conta",
  size:"Tamanho (contratos) *",
  entryDate:"Data de entrada *",
  exitDate:"Data de saída",

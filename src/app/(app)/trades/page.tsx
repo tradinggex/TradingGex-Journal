@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { requireUser } from "@/lib/session";
 import { getDictionary } from "@/lib/i18n";
+import { cookies } from "next/headers";
 import { TradeTable } from "@/components/trades/TradeTable";
 import { TradeFilters } from "@/components/trades/TradeFilters";
 import Link from "next/link";
@@ -23,6 +24,8 @@ const PAGE_SIZE = 25;
 
 export default async function TradesPage({ searchParams }: PageProps) {
   const user = await requireUser();
+  const cookieStore = await cookies();
+  const activeAccountId = cookieStore.get("activeAccount")?.value ?? null;
   const params = await searchParams;
   const dict = await getDictionary();
   const d = dict.trades;
@@ -36,6 +39,7 @@ export default async function TradesPage({ searchParams }: PageProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function applyFilters(q: any) {
     let query = q.eq("userId", user.userId);
+    if (activeAccountId) query = query.eq("fundedAccountId", activeAccountId);
     if (direction) query = query.eq("direction", direction);
     if (instrumentId) query = query.eq("instrumentId", instrumentId);
     if (setupId) query = query.eq("setupId", setupId);

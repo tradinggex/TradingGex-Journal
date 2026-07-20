@@ -1101,9 +1101,9 @@ function SupportTab() {
 }
 
 // ── Main SettingsTabs ──────────────────────────────────────────────────────
-type TabId = "instruments" | "setups" | "tags" | "accounts" | "language" | "support";
+type TabId = "instruments" | "setups" | "tags" | "language" | "support";
 
-export function SettingsTabs({ instruments, setups, tags, fundedAccounts }: SettingsTabsProps) {
+export function SettingsTabs({ instruments, setups, tags }: Omit<SettingsTabsProps, "fundedAccounts">) {
   const t = useTranslation();
   const [activeTab, setActiveTab] = useState<TabId>("instruments");
 
@@ -1111,7 +1111,6 @@ export function SettingsTabs({ instruments, setups, tags, fundedAccounts }: Sett
     { id: "instruments", label: t("settings.tabs.instruments") },
     { id: "setups", label: t("settings.tabs.setups") },
     { id: "tags", label: t("settings.tabs.tags") },
-    { id: "accounts", label: t("settings.tabs.accounts") },
     { id: "language", label: t("settings.tabs.language") },
     { id: "support", label: t("settings.tabs.support") },
   ];
@@ -1141,7 +1140,6 @@ export function SettingsTabs({ instruments, setups, tags, fundedAccounts }: Sett
       {activeTab === "instruments" && <InstrumentsTab instruments={instruments} />}
       {activeTab === "setups" && <SetupsTab setups={setups} />}
       {activeTab === "tags" && <TagsTab tags={tags} />}
-      {activeTab === "accounts" && <AccountsTab accounts={fundedAccounts} />}
       {activeTab === "language" && <LanguageTab />}
       {activeTab === "support" && <SupportTab />}
     </div>
