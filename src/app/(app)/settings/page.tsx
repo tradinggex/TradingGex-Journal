@@ -2,10 +2,13 @@ import { supabase } from "@/lib/supabase";
 import { getDictionary } from "@/lib/i18n";
 import { SettingsTabs } from "@/components/settings/SettingsTabs";
 import { DEFAULT_INSTRUMENTS } from "@/lib/constants";
+import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
+  const user = await requireUser();
+
   // Seed any DEFAULT_INSTRUMENTS that don't exist yet
   const { data: existing } = await supabase.from("Instrument").select("symbol");
   if (existing) {
@@ -30,10 +33,11 @@ export default async function SettingsPage() {
     }
   }
 
-  const [instrumentsRes, setupsRes, tagsRes, dict] = await Promise.all([
+  const [instrumentsRes, setupsRes, tagsRes, accountsRes, dict] = await Promise.all([
     supabase.from("Instrument").select("*").order("symbol"),
     supabase.from("Setup").select("*").order("name"),
     supabase.from("Tag").select("*").order("name"),
+    supabase.from("FundedAccount").select("*").eq("userId", user.userId).order("createdAt", { ascending: false }),
     getDictionary(),
   ]);
 
@@ -47,6 +51,7 @@ export default async function SettingsPage() {
         instruments={instrumentsRes.data ?? []}
         setups={setupsRes.data ?? []}
         tags={tagsRes.data ?? []}
+        fundedAccounts={accountsRes.data ?? []}
       />
     </div>
   );

@@ -117,3 +117,51 @@ export async function deleteTag(id: string) {
   revalidatePath("/settings");
   return { success: true };
 }
+
+// --- Funded Accounts ---
+const fundedAccountSchema = z.object({
+  accountType: z.enum(["personal", "funded"]),
+  firmName: z.string().min(1).max(100).trim(),
+  accountSize: z.number().positive(),
+  profitTarget: z.number().positive().nullable().optional(),
+  maxDailyDrawdown: z.number().positive().nullable().optional(),
+  maxTotalDrawdown: z.number().positive().nullable().optional(),
+  currentBalance: z.number().nullable().optional(),
+  status: z.enum(["active", "evaluation", "passed", "failed"]),
+  notes: z.string().max(500).nullable().optional(),
+});
+
+export async function createFundedAccount(data: unknown) {
+  const user = await requireUser();
+  const parsed = fundedAccountSchema.safeParse(data);
+  if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("FundedAccount").insert({
+    id, userId: user.userId, ...parsed.data,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+  if (error) return { error: "Error al crear cuenta" };
+  revalidatePath("/settings");
+  return { success: true, id };
+}
+
+export async function updateFundedAccount(id: string, data: unknown) {
+  const user = await requireUser();
+  const parsed = fundedAccountSchema.safeParse(data);
+  if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
+  const { error } = await supabase
+    .from("FundedAccount")
+    .update({ ...parsed.data, updatedAt: new Date().toISOString() })
+    .eq("id", id).eq("userId", user.userId);
+  if (error) return { error: "Error al actualizar cuenta" };
+  revalidatePath("/settings");
+  return { success: true };
+}
+
+export async function deleteFundedAccount(id: string) {
+  const user = await requireUser();
+  await supabase.from("FundedAccount").delete().eq("id", id).eq("userId", user.userId);
+  revalidatePath("/settings");
+  return { success: true };
+}

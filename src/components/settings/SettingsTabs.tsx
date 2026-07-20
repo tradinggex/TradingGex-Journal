@@ -16,6 +16,9 @@ import {
   deleteSetup,
   createTag,
   deleteTag,
+  createFundedAccount,
+  updateFundedAccount,
+  deleteFundedAccount,
 } from "@/actions/settings.actions";
 import { X as XIcon, Mail, Bug, Lightbulb, Copy, Check } from "lucide-react";
 
@@ -47,10 +50,24 @@ interface Tag {
   color: string;
 }
 
+interface FundedAccount {
+  id: string;
+  accountType: string;
+  firmName: string;
+  accountSize: number;
+  profitTarget: number | null;
+  maxDailyDrawdown: number | null;
+  maxTotalDrawdown: number | null;
+  currentBalance: number | null;
+  status: string;
+  notes: string | null;
+}
+
 interface SettingsTabsProps {
   instruments: Instrument[];
   setups: Setup[];
   tags: Tag[];
+  fundedAccounts: FundedAccount[];
 }
 
 // ── Shared styles ─────────────────────────────────────────────────────────
@@ -564,6 +581,327 @@ function TagsTab({ tags }: { tags: Tag[] }) {
   );
 }
 
+// ── Accounts Tab ──────────────────────────────────────────────────────────
+const PROP_FIRMS = [
+  "FTMO", "Topstep", "MyFundedFutures", "Apex Trader Funding",
+  "The 5%ers", "Earn2Trade", "E8 Funding", "TradeDay",
+  "Take Profit Trader", "BluSky Trading", "Funding Pips",
+  "True Forex Funds", "Alpha Capital Group", "Other",
+];
+
+const ACCOUNT_STATUSES = ["active", "evaluation", "passed", "failed"] as const;
+
+function AccountsTab({ accounts }: { accounts: FundedAccount[] }) {
+  const t = useTranslation();
+  const [isPending, startTransition] = useTransition();
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<FundedAccount | null>(null);
+  const [form, setForm] = useState({
+    accountType: "funded",
+    firmName: "",
+    accountSize: "",
+    profitTarget: "",
+    maxDailyDrawdown: "",
+    maxTotalDrawdown: "",
+    currentBalance: "",
+    status: "active",
+    notes: "",
+  });
+
+  function resetForm() {
+    setForm({ accountType: "funded", firmName: "", accountSize: "", profitTarget: "", maxDailyDrawdown: "", maxTotalDrawdown: "", currentBalance: "", status: "active", notes: "" });
+    setShowForm(false);
+    setEditing(null);
+  }
+
+  function startEdit(a: FundedAccount) {
+    setEditing(a);
+    setForm({
+      accountType: a.accountType,
+      firmName: a.firmName,
+      accountSize: String(a.accountSize),
+      profitTarget: a.profitTarget != null ? String(a.profitTarget) : "",
+      maxDailyDrawdown: a.maxDailyDrawdown != null ? String(a.maxDailyDrawdown) : "",
+      maxTotalDrawdown: a.maxTotalDrawdown != null ? String(a.maxTotalDrawdown) : "",
+      currentBalance: a.currentBalance != null ? String(a.currentBalance) : "",
+      status: a.status,
+      notes: a.notes ?? "",
+    });
+    setShowForm(true);
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const data = {
+      accountType: form.accountType,
+      firmName: form.firmName,
+      accountSize: parseFloat(form.accountSize),
+      profitTarget: form.profitTarget ? parseFloat(form.profitTarget) : null,
+      maxDailyDrawdown: form.maxDailyDrawdown ? parseFloat(form.maxDailyDrawdown) : null,
+      maxTotalDrawdown: form.maxTotalDrawdown ? parseFloat(form.maxTotalDrawdown) : null,
+      currentBalance: form.currentBalance ? parseFloat(form.currentBalance) : null,
+      status: form.status,
+      notes: form.notes || null,
+    };
+    startTransition(async () => {
+      const res = editing
+        ? await updateFundedAccount(editing.id, data)
+        : await createFundedAccount(data);
+      if ("error" in res) {
+        toast.error(t("settings.accounts.saveError"));
+      } else {
+        toast.success(editing ? t("settings.accounts.updated") : t("settings.accounts.created"));
+        resetForm();
+      }
+    });
+  }
+
+  function handleDelete(id: string) {
+    if (!confirm(t("settings.accounts.deleteConfirm"))) return;
+    startTransition(async () => {
+      await deleteFundedAccount(id);
+      toast.success(t("settings.accounts.deleted"));
+    });
+  }
+
+  const statusColors: Record<string, string> = {
+    active:     "bg-emerald-400/10 text-emerald-400 border-emerald-400/20",
+    evaluation: "bg-amber-400/10 text-amber-400 border-amber-400/20",
+    passed:     "bg-purple-400/10 text-purple-400 border-purple-400/20",
+    failed:     "bg-red-400/10 text-red-400 border-red-400/20",
+  };
+
+  const statusLabel = (s: string) => {
+    const map: Record<string, string> = {
+      active: t("settings.accounts.statusActive"),
+      evaluation: t("settings.accounts.statusEvaluation"),
+      passed: t("settings.accounts.statusPassed"),
+      failed: t("settings.accounts.statusFailed"),
+    };
+    return map[s] ?? s;
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-fg-subtle">{t("settings.accounts.subtitle")}</p>
+        <button className={btnPrimary} onClick={() => { resetForm(); setShowForm(true); }}>
+          {t("settings.accounts.add")}
+        </button>
+      </div>
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="bg-surface2 border border-[var(--border)] rounded-xl p-5 space-y-4">
+          <div className="text-sm font-semibold text-foreground">
+            {editing ? t("settings.accounts.editTitle") : t("settings.accounts.newTitle")}
+          </div>
+
+          {/* Account type toggle */}
+          <div className="flex gap-2">
+            {(["personal", "funded"] as const).map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, accountType: type }))}
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold border transition-all ${
+                  form.accountType === type
+                    ? "border-purple-500/60 bg-purple-500/10 text-purple-400"
+                    : "border-[var(--border)] text-fg-muted hover:text-foreground"
+                }`}
+              >
+                {type === "personal" ? t("settings.accounts.personal") : t("settings.accounts.funded")}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {/* Firm name */}
+            <div className="col-span-2 sm:col-span-1">
+              <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.firmName")}</label>
+              {form.accountType === "funded" ? (
+                <select
+                  className={inputCls}
+                  value={PROP_FIRMS.includes(form.firmName) ? form.firmName : "Other"}
+                  onChange={(e) => {
+                    if (e.target.value !== "Other") setForm((f) => ({ ...f, firmName: e.target.value }));
+                    else setForm((f) => ({ ...f, firmName: "" }));
+                  }}
+                >
+                  <option value="">Select firm...</option>
+                  {PROP_FIRMS.map((f) => <option key={f} value={f}>{f}</option>)}
+                </select>
+              ) : (
+                <input
+                  className={inputCls}
+                  placeholder={t("settings.accounts.firmNamePlaceholder")}
+                  value={form.firmName}
+                  onChange={(e) => setForm((f) => ({ ...f, firmName: e.target.value }))}
+                  required
+                />
+              )}
+              {form.accountType === "funded" && (!PROP_FIRMS.includes(form.firmName) || form.firmName === "") && (
+                <input
+                  className={`${inputCls} mt-2`}
+                  placeholder="Custom firm name..."
+                  value={form.firmName}
+                  onChange={(e) => setForm((f) => ({ ...f, firmName: e.target.value }))}
+                  required
+                />
+              )}
+            </div>
+
+            {/* Status */}
+            <div>
+              <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.status")}</label>
+              <select
+                className={inputCls}
+                value={form.status}
+                onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+              >
+                {ACCOUNT_STATUSES.map((s) => (
+                  <option key={s} value={s}>{statusLabel(s)}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Account size */}
+            <div>
+              <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.accountSize")}</label>
+              <input className={inputCls} type="number" step="any" placeholder="50000" value={form.accountSize}
+                onChange={(e) => setForm((f) => ({ ...f, accountSize: e.target.value }))} required />
+            </div>
+
+            {/* Current balance */}
+            <div>
+              <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.currentBalance")}</label>
+              <input className={inputCls} type="number" step="any" placeholder="51200" value={form.currentBalance}
+                onChange={(e) => setForm((f) => ({ ...f, currentBalance: e.target.value }))} />
+            </div>
+
+            {/* Profit target */}
+            <div>
+              <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.profitTarget")}</label>
+              <input className={inputCls} type="number" step="any" placeholder="10" value={form.profitTarget}
+                onChange={(e) => setForm((f) => ({ ...f, profitTarget: e.target.value }))} />
+            </div>
+
+            {/* Max daily drawdown */}
+            <div>
+              <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.maxDailyDrawdown")}</label>
+              <input className={inputCls} type="number" step="any" placeholder="5" value={form.maxDailyDrawdown}
+                onChange={(e) => setForm((f) => ({ ...f, maxDailyDrawdown: e.target.value }))} />
+            </div>
+
+            {/* Max total drawdown */}
+            <div>
+              <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.maxTotalDrawdown")}</label>
+              <input className={inputCls} type="number" step="any" placeholder="10" value={form.maxTotalDrawdown}
+                onChange={(e) => setForm((f) => ({ ...f, maxTotalDrawdown: e.target.value }))} />
+            </div>
+
+            {/* Notes */}
+            <div className="col-span-2">
+              <label className="text-xs text-fg-subtle mb-1 block">{t("settings.accounts.notes")}</label>
+              <input className={inputCls} placeholder={t("settings.accounts.notesPlaceholder")} value={form.notes}
+                onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <button type="submit" className={btnPrimary} disabled={isPending}>
+              {isPending ? t("settings.accounts.saving") : editing ? t("common.update") : t("common.create")}
+            </button>
+            <button type="button" className={btnSecondary} onClick={resetForm}>
+              {t("settings.accounts.cancel")}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {accounts.length === 0 ? (
+        <div className="card px-6 py-12 text-center text-fg-subtle font-mono text-sm">
+          {t("settings.accounts.noData")}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {accounts.map((a) => {
+            const progress = a.currentBalance && a.accountSize
+              ? ((a.currentBalance - a.accountSize) / a.accountSize) * 100
+              : null;
+            return (
+              <div key={a.id} className="card p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-bold text-foreground text-sm">{a.firmName}</div>
+                    <div className="text-xs text-fg-subtle mt-0.5">
+                      {a.accountType === "personal" ? t("settings.accounts.personal") : t("settings.accounts.funded")}
+                      {" · "}${a.accountSize.toLocaleString()}
+                    </div>
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${statusColors[a.status] ?? ""}`}>
+                    {statusLabel(a.status)}
+                  </span>
+                </div>
+
+                {/* Stats row */}
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  {a.profitTarget != null && (
+                    <div className="bg-surface2 rounded-lg px-2 py-1.5">
+                      <div className="text-[10px] text-fg-muted">Target</div>
+                      <div className="text-xs font-bold text-emerald-400">{a.profitTarget}%</div>
+                    </div>
+                  )}
+                  {a.maxDailyDrawdown != null && (
+                    <div className="bg-surface2 rounded-lg px-2 py-1.5">
+                      <div className="text-[10px] text-fg-muted">Daily DD</div>
+                      <div className="text-xs font-bold text-red-400">{a.maxDailyDrawdown}%</div>
+                    </div>
+                  )}
+                  {a.maxTotalDrawdown != null && (
+                    <div className="bg-surface2 rounded-lg px-2 py-1.5">
+                      <div className="text-[10px] text-fg-muted">Max DD</div>
+                      <div className="text-xs font-bold text-red-400">{a.maxTotalDrawdown}%</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* P&L progress */}
+                {a.currentBalance != null && (
+                  <div>
+                    <div className="flex justify-between text-[10px] text-fg-muted mb-1">
+                      <span>Balance: ${a.currentBalance.toLocaleString()}</span>
+                      {progress != null && (
+                        <span className={progress >= 0 ? "text-emerald-400" : "text-red-400"}>
+                          {progress >= 0 ? "+" : ""}{progress.toFixed(2)}%
+                        </span>
+                      )}
+                    </div>
+                    {a.profitTarget != null && progress != null && (
+                      <div className="h-1.5 bg-surface2 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${progress >= 0 ? "bg-emerald-400" : "bg-red-400"}`}
+                          style={{ width: `${Math.min(Math.abs(progress) / a.profitTarget * 100, 100)}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {a.notes && <p className="text-[11px] text-fg-muted leading-snug">{a.notes}</p>}
+
+                <div className="flex items-center gap-2 pt-1">
+                  <button className={btnSecondary} onClick={() => startEdit(a)}>{t("common.edit")}</button>
+                  <button className={btnDanger} onClick={() => handleDelete(a.id)}><XIcon size={12} strokeWidth={2.5} /></button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Language Tab ───────────────────────────────────────────────────────────
 const LOCALES: { value: Locale; flag: string }[] = [
   { value: "en", flag: "🇺🇸" },
@@ -706,9 +1044,9 @@ function SupportTab() {
 }
 
 // ── Main SettingsTabs ──────────────────────────────────────────────────────
-type TabId = "instruments" | "setups" | "tags" | "language" | "support";
+type TabId = "instruments" | "setups" | "tags" | "accounts" | "language" | "support";
 
-export function SettingsTabs({ instruments, setups, tags }: SettingsTabsProps) {
+export function SettingsTabs({ instruments, setups, tags, fundedAccounts }: SettingsTabsProps) {
   const t = useTranslation();
   const [activeTab, setActiveTab] = useState<TabId>("instruments");
 
@@ -716,6 +1054,7 @@ export function SettingsTabs({ instruments, setups, tags }: SettingsTabsProps) {
     { id: "instruments", label: t("settings.tabs.instruments") },
     { id: "setups", label: t("settings.tabs.setups") },
     { id: "tags", label: t("settings.tabs.tags") },
+    { id: "accounts", label: t("settings.tabs.accounts") },
     { id: "language", label: t("settings.tabs.language") },
     { id: "support", label: t("settings.tabs.support") },
   ];
@@ -745,6 +1084,7 @@ export function SettingsTabs({ instruments, setups, tags }: SettingsTabsProps) {
       {activeTab === "instruments" && <InstrumentsTab instruments={instruments} />}
       {activeTab === "setups" && <SetupsTab setups={setups} />}
       {activeTab === "tags" && <TagsTab tags={tags} />}
+      {activeTab === "accounts" && <AccountsTab accounts={fundedAccounts} />}
       {activeTab === "language" && <LanguageTab />}
       {activeTab === "support" && <SupportTab />}
     </div>
