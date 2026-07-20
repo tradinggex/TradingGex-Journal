@@ -11,6 +11,12 @@ import {
 } from "@/actions/settings.actions";
 import { MAX_ACCOUNTS } from "@/lib/constants";
 
+export interface AccountStats {
+  totalPnl: number;
+  tradeCount: number;
+  wins: number;
+}
+
 interface FundedAccount {
   id: string;
   accountType: string;
@@ -45,7 +51,13 @@ const PROP_FIRMS = [
 
 const ACCOUNT_STATUSES = ["active", "evaluation", "passed", "failed"] as const;
 
-export function AccountsView({ accounts }: { accounts: FundedAccount[] }) {
+export function AccountsView({
+  accounts,
+  statsMap = {},
+}: {
+  accounts: FundedAccount[];
+  statsMap?: Record<string, AccountStats>;
+}) {
   const t = useTranslation();
   const atLimit = accounts.length >= MAX_ACCOUNTS;
   const [isPending, startTransition] = useTransition();
@@ -337,11 +349,35 @@ export function AccountsView({ accounts }: { accounts: FundedAccount[] }) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {accounts.map((a) => {
-            const progress = a.currentBalance && a.accountSize
-              ? ((a.currentBalance - a.accountSize) / a.accountSize) * 100
-              : null;
+            const stats = statsMap[a.id];
+            const totalPnl = stats?.totalPnl ?? 0;
+            const tradeCount = stats?.tradeCount ?? 0;
+            const wins = stats?.wins ?? 0;
+            const winRate = tradeCount > 0 ? (wins / tradeCount) * 100 : null;
+            const realBalance = a.accountSize + totalPnl;
+            const pnlPct = (totalPnl / a.accountSize) * 100;
+
+            // Progress toward profit target
+            let targetPnl: number | null = null;
+            if (a.profitTarget != null) {
+              targetPnl = a.profitTargetType === "usd"
+                ? a.profitTarget
+                : a.accountSize * (a.profitTarget / 100);
+            }
+            const targetProgress = targetPnl ? Math.min((totalPnl / targetPnl) * 100, 100) : null;
+
+            // Max total drawdown threshold
+            let maxLoss: number | null = null;
+            if (a.maxTotalDrawdown != null) {
+              maxLoss = a.maxTotalDrawdownType === "usd"
+                ? a.maxTotalDrawdown
+                : a.accountSize * (a.maxTotalDrawdown / 100);
+            }
+            const ddPct = maxLoss && totalPnl < 0 ? Math.min((Math.abs(totalPnl) / maxLoss) * 100, 100) : null;
+
             return (
               <div key={a.id} className="card p-4 space-y-3">
+                {/* Header */}
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="font-bold text-foreground text-sm">{a.firmName}</div>
@@ -350,13 +386,38 @@ export function AccountsView({ accounts }: { accounts: FundedAccount[] }) {
                       {" · "}${a.accountSize.toLocaleString()}
                     </div>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${statusColors[a.status] ?? ""}`}>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border shrink-0 ${statusColors[a.status] ?? ""}`}>
                     {statusLabel(a.status)}
                   </span>
                 </div>
 
-                {/* Stats row */}
+                {/* Real balance + P&L from trades */}
+                <div className="bg-surface2 rounded-lg px-3 py-2.5 flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] text-fg-muted mb-0.5">Balance real</div>
+                    <div className="text-sm font-bold text-foreground">${realBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] text-fg-muted mb-0.5">P&amp;L neto</div>
+                    <div className={`text-sm font-bold ${totalPnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                      {totalPnl >= 0 ? "+" : ""}${totalPnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      <span className="text-[10px] ml-1 font-normal">({pnlPct >= 0 ? "+" : ""}{pnlPct.toFixed(2)}%)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trade stats row */}
                 <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-surface2 rounded-lg px-2 py-1.5">
+                    <div className="text-[10px] text-fg-muted">Trades</div>
+                    <div className="text-xs font-bold text-foreground">{tradeCount}</div>
+                  </div>
+                  <div className="bg-surface2 rounded-lg px-2 py-1.5">
+                    <div className="text-[10px] text-fg-muted">Win rate</div>
+                    <div className={`text-xs font-bold ${winRate != null && winRate >= 50 ? "text-emerald-400" : "text-fg-muted"}`}>
+                      {winRate != null ? `${winRate.toFixed(0)}%` : "—"}
+                    </div>
+                  </div>
                   {a.profitTarget != null && (
                     <div className="bg-surface2 rounded-lg px-2 py-1.5">
                       <div className="text-[10px] text-fg-muted">Target</div>
@@ -365,42 +426,55 @@ export function AccountsView({ accounts }: { accounts: FundedAccount[] }) {
                       </div>
                     </div>
                   )}
-                  {a.maxDailyDrawdown != null && (
-                    <div className="bg-surface2 rounded-lg px-2 py-1.5">
-                      <div className="text-[10px] text-fg-muted">Daily DD</div>
-                      <div className="text-xs font-bold text-red-400">
-                        {a.maxDailyDrawdownType === "usd" ? `$${a.maxDailyDrawdown.toLocaleString()}` : `${a.maxDailyDrawdown}%`}
-                      </div>
-                    </div>
-                  )}
-                  {a.maxTotalDrawdown != null && (
-                    <div className="bg-surface2 rounded-lg px-2 py-1.5">
-                      <div className="text-[10px] text-fg-muted">Max DD</div>
-                      <div className="text-xs font-bold text-red-400">
-                        {a.maxTotalDrawdownType === "usd" ? `$${a.maxTotalDrawdown.toLocaleString()}` : `${a.maxTotalDrawdown}%`}
-                      </div>
-                    </div>
-                  )}
                 </div>
 
-                {/* P&L progress */}
-                {a.currentBalance != null && (
+                {/* Profit target progress bar */}
+                {targetPnl != null && targetProgress != null && totalPnl >= 0 && (
                   <div>
                     <div className="flex justify-between text-[10px] text-fg-muted mb-1">
-                      <span>Balance: ${a.currentBalance.toLocaleString()}</span>
-                      {progress != null && (
-                        <span className={progress >= 0 ? "text-emerald-400" : "text-red-400"}>
-                          {progress >= 0 ? "+" : ""}{progress.toFixed(2)}%
-                        </span>
-                      )}
+                      <span>Progreso al objetivo</span>
+                      <span className="text-emerald-400 font-semibold">{targetProgress.toFixed(1)}%</span>
                     </div>
-                    {a.profitTarget != null && progress != null && (
-                      <div className="h-1.5 bg-surface2 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all ${progress >= 0 ? "bg-emerald-400" : "bg-red-400"}`}
-                          style={{ width: `${Math.min(Math.abs(progress) / a.profitTarget * 100, 100)}%` }}
-                        />
-                      </div>
+                    <div className="h-2 bg-surface2 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-emerald-400 transition-all"
+                        style={{ width: `${targetProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Drawdown warning bar */}
+                {ddPct != null && maxLoss != null && (
+                  <div>
+                    <div className="flex justify-between text-[10px] text-fg-muted mb-1">
+                      <span>Drawdown total</span>
+                      <span className={`font-semibold ${ddPct >= 75 ? "text-red-400" : ddPct >= 50 ? "text-amber-400" : "text-fg-muted"}`}>
+                        {ddPct.toFixed(1)}%{" "}
+                        <span className="font-normal text-fg-subtle">de límite</span>
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-surface2 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${ddPct >= 75 ? "bg-red-400" : ddPct >= 50 ? "bg-amber-400" : "bg-surface3"}`}
+                        style={{ width: `${ddPct}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Rule thresholds */}
+                {(a.maxDailyDrawdown != null || a.maxTotalDrawdown != null) && (
+                  <div className="flex gap-2 flex-wrap">
+                    {a.maxDailyDrawdown != null && (
+                      <span className="text-[10px] text-fg-muted bg-surface2 rounded px-2 py-0.5">
+                        DD diario: {a.maxDailyDrawdownType === "usd" ? `$${a.maxDailyDrawdown.toLocaleString()}` : `${a.maxDailyDrawdown}%`}
+                      </span>
+                    )}
+                    {a.maxTotalDrawdown != null && (
+                      <span className="text-[10px] text-fg-muted bg-surface2 rounded px-2 py-0.5">
+                        DD total: {a.maxTotalDrawdownType === "usd" ? `$${a.maxTotalDrawdown.toLocaleString()}` : `${a.maxTotalDrawdown}%`}
+                      </span>
                     )}
                   </div>
                 )}
