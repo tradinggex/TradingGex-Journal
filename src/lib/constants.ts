@@ -1,9 +1,10 @@
 export const MARKETS = [
-  { value: "CME", label: "CME / Futuros Tradicionales", color: "#448aff" },
-  { value: "STOCKS", label: "Acciones / Stocks", color: "#00e676" },
-  { value: "CRYPTO", label: "Crypto Futures", color: "#d500f9" },
-  { value: "FOREX", label: "Forex Futuros", color: "#ff9800" },
-  { value: "GENERIC", label: "Genérico", color: "#90a4ae" },
+  { value: "CME",     label: "CME / Futuros",            color: "#448aff" },
+  { value: "STOCKS",  label: "Acciones / Stocks",         color: "#00e676" },
+  { value: "CRYPTO",  label: "Crypto Futures",            color: "#d500f9" },
+  { value: "FOREX",   label: "Forex / Spot",              color: "#ff9800" },
+  { value: "OPTIONS", label: "Opciones / Options",        color: "#f59e0b" },
+  { value: "GENERIC", label: "Genérico / CFD",            color: "#90a4ae" },
 ] as const;
 
 export const DIRECTIONS = [

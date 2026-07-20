@@ -83,11 +83,29 @@ const btnSecondary =
 const btnDanger =
   "text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded transition-colors hover:bg-red-400/10";
 
+// ── Instrument category helpers ─────────────────────────────────────────────
+type InstrumentCategory = "all" | "futures" | "stocks" | "forex" | "options" | "other";
+const INSTRUMENT_CATS: { id: InstrumentCategory; label: string; markets: string[] | null }[] = [
+  { id: "all",     label: "All",     markets: null },
+  { id: "futures", label: "Futures", markets: ["CME", "CRYPTO", "GENERIC"] },
+  { id: "stocks",  label: "Stocks",  markets: ["STOCKS"] },
+  { id: "forex",   label: "Forex",   markets: ["FOREX"] },
+  { id: "options", label: "Options", markets: ["OPTIONS"] },
+];
+function getInstrumentCat(market: string): InstrumentCategory {
+  if (market === "STOCKS")  return "stocks";
+  if (market === "FOREX")   return "forex";
+  if (market === "OPTIONS") return "options";
+  if (["CME", "CRYPTO", "GENERIC"].includes(market)) return "futures";
+  return "other";
+}
+
 // ── Instruments Tab ────────────────────────────────────────────────────────
 function InstrumentsTab({ instruments }: { instruments: Instrument[] }) {
   const t = useTranslation();
   const [isPending, startTransition] = useTransition();
   const [showForm, setShowForm] = useState(false);
+  const [catFilter, setCatFilter] = useState<InstrumentCategory>("all");
   const [editing, setEditing] = useState<Instrument | null>(null);
   const [form, setForm] = useState({
     symbol: "",
@@ -163,10 +181,45 @@ function InstrumentsTab({ instruments }: { instruments: Instrument[] }) {
     });
   }
 
+  const visibleInstruments = catFilter === "all"
+    ? instruments
+    : instruments.filter((i) => {
+        const cat = getInstrumentCat(i.market);
+        return cat === catFilter || (catFilter === "other" && !["futures","stocks","forex","options"].includes(cat));
+      });
+
   return (
     <div className="space-y-4">
+      {/* Category filter tabs */}
+      <div className="flex gap-1 overflow-x-auto pb-1 border-b border-[var(--border)]">
+        {INSTRUMENT_CATS.map((cat) => {
+          const count = cat.id === "all"
+            ? instruments.length
+            : instruments.filter((i) => {
+                const c = getInstrumentCat(i.market);
+                return c === cat.id;
+              }).length;
+          if (count === 0 && cat.id !== "all" && cat.id !== "options") return null;
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setCatFilter(cat.id)}
+              className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all mb-1 ${
+                catFilter === cat.id
+                  ? "bg-purple-500 text-white"
+                  : "text-fg-muted hover:text-foreground"
+              }`}
+            >
+              {cat.label}
+              <span className="ml-1 opacity-60">({count})</span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="flex items-center justify-between">
-        <span className="text-xs text-fg-subtle font-mono">{t("settings.instruments.count", { count: instruments.length })}</span>
+        <span className="text-xs text-fg-subtle font-mono">{t("settings.instruments.count", { count: visibleInstruments.length })}</span>
         <button className={btnPrimary} onClick={() => { resetForm(); setShowForm(true); }}>
           {t("settings.instruments.add")}
         </button>
@@ -304,14 +357,14 @@ function InstrumentsTab({ instruments }: { instruments: Instrument[] }) {
             </tr>
           </thead>
           <tbody>
-            {instruments.length === 0 ? (
+            {visibleInstruments.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-4 py-8 text-center text-fg-subtle text-sm font-mono">
                   {t("settings.instruments.noData")}
                 </td>
               </tr>
             ) : (
-              instruments.map((ins) => {
+              visibleInstruments.map((ins) => {
                 const market = MARKETS.find((m) => m.value === ins.market);
                 return (
                   <tr key={ins.id} className="border-b border-[var(--border)] hover:bg-surface2 transition-colors">
@@ -1100,8 +1153,82 @@ function SupportTab() {
   );
 }
 
+// ── Goals Tab ───────────────────────────────────────────────────────────────
+function GoalsTab() {
+  const t = useTranslation();
+  const [weeklyGoal, setWeeklyGoal] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("weeklyPnlGoal") ?? "";
+  });
+  const [saved, setSaved] = useState(false);
+
+  function save() {
+    const val = parseFloat(weeklyGoal);
+    if (!isNaN(val) && val > 0) {
+      localStorage.setItem("weeklyPnlGoal", String(val));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
+  }
+
+  function clearGoal() {
+    localStorage.removeItem("weeklyPnlGoal");
+    setWeeklyGoal("");
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Weekly P&L Goal */}
+      <div className="card p-5 space-y-4">
+        <div>
+          <div className="text-sm font-bold text-foreground">{t("settings.goals.weeklyPnl")}</div>
+          <div className="text-xs text-fg-subtle mt-0.5">{t("settings.goals.weeklyPnlDesc")}</div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted text-sm font-mono">$</span>
+            <input
+              type="number"
+              min="1"
+              step="any"
+              placeholder={t("settings.goals.pnlGoalPlaceholder")}
+              value={weeklyGoal}
+              onChange={(e) => { setWeeklyGoal(e.target.value); setSaved(false); }}
+              className="w-full bg-surface2 border border-[var(--border)] text-foreground rounded-lg pl-7 pr-3 py-2 text-sm focus:border-purple-500/50 focus:outline-none placeholder:text-fg-subtle"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={save}
+            disabled={!weeklyGoal || isNaN(parseFloat(weeklyGoal)) || parseFloat(weeklyGoal) <= 0}
+            className={btnPrimary}
+          >
+            {saved ? "✓ " + t("settings.goals.saved") : t("settings.goals.save")}
+          </button>
+          {weeklyGoal && (
+            <button type="button" onClick={clearGoal} className={btnDanger}>
+              {t("common.clear")}
+            </button>
+          )}
+        </div>
+        {weeklyGoal && !isNaN(parseFloat(weeklyGoal)) && (
+          <div className="text-xs text-fg-subtle bg-surface2 rounded-lg px-3 py-2 border border-[var(--border)]">
+            {t("settings.goals.currentGoal").replace("{goal}", `$${parseFloat(weeklyGoal).toLocaleString()}`)}
+          </div>
+        )}
+      </div>
+
+      {/* Weekly review reminder */}
+      <div className="card p-5 space-y-2">
+        <div className="text-sm font-bold text-foreground">{t("settings.goals.reminderTitle")}</div>
+        <div className="text-xs text-fg-subtle leading-relaxed">{t("settings.goals.reminderDesc")}</div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main SettingsTabs ──────────────────────────────────────────────────────
-type TabId = "instruments" | "setups" | "tags" | "language" | "support";
+type TabId = "instruments" | "setups" | "tags" | "goals" | "language" | "support";
 
 export function SettingsTabs({ instruments, setups, tags }: Omit<SettingsTabsProps, "fundedAccounts">) {
   const t = useTranslation();
@@ -1111,6 +1238,7 @@ export function SettingsTabs({ instruments, setups, tags }: Omit<SettingsTabsPro
     { id: "instruments", label: t("settings.tabs.instruments") },
     { id: "setups", label: t("settings.tabs.setups") },
     { id: "tags", label: t("settings.tabs.tags") },
+    { id: "goals", label: t("settings.tabs.goals") },
     { id: "language", label: t("settings.tabs.language") },
     { id: "support", label: t("settings.tabs.support") },
   ];
@@ -1140,6 +1268,7 @@ export function SettingsTabs({ instruments, setups, tags }: Omit<SettingsTabsPro
       {activeTab === "instruments" && <InstrumentsTab instruments={instruments} />}
       {activeTab === "setups" && <SetupsTab setups={setups} />}
       {activeTab === "tags" && <TagsTab tags={tags} />}
+      {activeTab === "goals" && <GoalsTab />}
       {activeTab === "language" && <LanguageTab />}
       {activeTab === "support" && <SupportTab />}
     </div>

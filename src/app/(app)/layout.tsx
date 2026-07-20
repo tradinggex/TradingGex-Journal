@@ -4,6 +4,7 @@ import { I18nProvider } from "@/lib/i18n/context";
 import { TopNav } from "@/components/layout/TopNav";
 import { getUserSubscription, hasAccess, trialDaysLeft } from "@/lib/subscription";
 import { PaywallScreen } from "@/components/billing/PaywallScreen";
+import { WeeklyReviewBanner } from "@/components/dashboard/WeeklyReviewBanner";
 import { supabase } from "@/lib/supabase";
 import { cookies } from "next/headers";
 
@@ -30,6 +31,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <I18nProvider dict={dict} locale={locale}>
+      <WeeklyReviewBanner />
       <TopNav
         userEmail={user.email}
         userName={user.name ?? undefined}

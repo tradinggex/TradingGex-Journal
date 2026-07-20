@@ -8,6 +8,7 @@ import { formatCurrency } from "@/lib/formatters";
 import { createTrade, updateTrade } from "@/actions/trade.actions";
 import { useTranslation } from "@/lib/i18n/context";
 import { ScreenshotGallery } from "@/components/trades/ScreenshotGallery";
+import { InstrumentPicker } from "@/components/trades/InstrumentPicker";
 import { Camera, X as XIcon } from "lucide-react";
 
 interface Instrument {
@@ -362,19 +363,12 @@ export function TradeForm({ instruments, setups, tags, accounts = [], defaultAcc
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="sm:col-span-2">
             <label className={labelCls}>{t("trades.form.instrument")}</label>
-            <select
-              className={inputCls}
+            <InstrumentPicker
+              instruments={instruments}
               value={form.instrumentId}
-              onChange={(e) => setForm((f) => ({ ...f, instrumentId: e.target.value }))}
+              onChange={(id) => setForm((f) => ({ ...f, instrumentId: id }))}
               required
-            >
-              <option value="">{t("trades.form.selectInstrument")}</option>
-              {instruments.map((ins) => (
-                <option key={ins.id} value={ins.id}>
-                  {ins.symbol} — {ins.name}
-                </option>
-              ))}
-            </select>
+            />
             {selectedInstrument && (
               <div className="text-[10px] text-fg-subtle font-mono mt-1">
                 {t("trades.form.tickInfo", {
