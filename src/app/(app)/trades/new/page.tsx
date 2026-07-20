@@ -13,7 +13,7 @@ export default async function NewTradePage() {
 
   const [instrumentsRes, setupsRes, tagsRes, accountsRes, dict] = await Promise.all([
     supabase.from("Instrument").select("*").eq("isActive", true).order("symbol"),
-    supabase.from("Setup").select("*").eq("isActive", true).order("name"),
+    supabase.from("Setup").select("*").eq("userId", user.userId).eq("isActive", true).order("name"),
     supabase.from("Tag").select("*").order("name"),
     supabase.from("FundedAccount").select("id, firmName, accountType").eq("userId", user.userId).order("createdAt", { ascending: true }),
     getDictionary(),

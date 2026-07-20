@@ -61,7 +61,7 @@ export default async function TradesPage({ searchParams }: PageProps) {
       supabase.from("Trade").select("id", { count: "exact", head: true })
     ),
     supabase.from("Instrument").select("*").eq("isActive", true).order("symbol"),
-    supabase.from("Setup").select("*").eq("isActive", true).order("name"),
+    supabase.from("Setup").select("*").eq("userId", user.userId).eq("isActive", true).order("name"),
   ]);
 
   const trades = tradesRes.data ?? [];

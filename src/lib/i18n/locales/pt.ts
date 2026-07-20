@@ -118,6 +118,8 @@ export const pt: Dict = {
  close:"Fechar",
  prevMonth:"Mês anterior",
  nextMonth:"Próximo mês",
+ monthly:"Mensal",
+ weekly:"Semanal",
  },
  lastTrades:"Últimas 10 operações",
  viewAll:"Ver todas →",

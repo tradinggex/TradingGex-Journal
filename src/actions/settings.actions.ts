@@ -69,33 +69,36 @@ export async function toggleInstrument(id: string, isActive: boolean) {
 
 // --- Setups ---
 export async function createSetup(data: unknown) {
-  await requireUser();
+  const user = await requireUser();
   const parsed = setupSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  const { error } = await supabase.from("Setup").insert({ id, ...parsed.data, createdAt: now, updatedAt: now });
+  const { error } = await supabase.from("Setup").insert({
+    id, ...parsed.data, userId: user.userId, createdAt: now, updatedAt: now,
+  });
   if (error) return { error: "Error al crear setup" };
   revalidatePath("/settings");
   return { success: true, id };
 }
 
 export async function updateSetup(id: string, data: unknown) {
-  await requireUser();
+  const user = await requireUser();
   const parsed = setupSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
   const { error } = await supabase
     .from("Setup")
     .update({ ...parsed.data, updatedAt: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("userId", user.userId);
   if (error) return { error: "Error al actualizar setup" };
   revalidatePath("/settings");
   return { success: true };
 }
 
 export async function deleteSetup(id: string) {
-  await requireUser();
-  await supabase.from("Setup").delete().eq("id", id);
+  const user = await requireUser();
+  await supabase.from("Setup").delete().eq("id", id).eq("userId", user.userId);
   revalidatePath("/settings");
   return { success: true };
 }

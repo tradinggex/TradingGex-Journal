@@ -116,6 +116,8 @@ export const en = {
  close:"Close",
  prevMonth:"Previous month",
  nextMonth:"Next month",
+ monthly:"Monthly",
+ weekly:"Weekly",
  },
  lastTrades:"Last 10 Trades",
  viewAll:"View all →",

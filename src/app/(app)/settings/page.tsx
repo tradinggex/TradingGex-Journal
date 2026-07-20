@@ -7,7 +7,7 @@ import { requireUser } from "@/lib/session";
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  await requireUser();
+  const user = await requireUser();
 
   // Seed any DEFAULT_INSTRUMENTS that don't exist yet
   const { data: existing } = await supabase.from("Instrument").select("symbol");
@@ -35,7 +35,7 @@ export default async function SettingsPage() {
 
   const [instrumentsRes, setupsRes, tagsRes, dict] = await Promise.all([
     supabase.from("Instrument").select("*").order("symbol"),
-    supabase.from("Setup").select("*").order("name"),
+    supabase.from("Setup").select("*").eq("userId", user.userId).order("name"),
     supabase.from("Tag").select("*").order("name"),
     getDictionary(),
   ]);
