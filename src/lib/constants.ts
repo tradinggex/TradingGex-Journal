@@ -105,3 +105,5 @@ export const DEFAULT_SETUPS = [
   { name: "Trend Continuation", description: "Continuación de tendencia en pullback", color: "#ffea00" },
   { name: "Opening Range", description: "Trading del rango de apertura", color: "#f50057" },
 ] as const;
+
+export const MAX_ACCOUNTS = 5;

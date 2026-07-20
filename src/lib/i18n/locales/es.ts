@@ -376,6 +376,7 @@ export const es: Dict = {
  title:"Cuentas Fondeadas",
  subtitle:"Gestiona tus cuentas personales y de prop firm",
  add:"+ Agregar Cuenta",
+ limitReached:"Límite de cuentas alcanzado (máx. 5)",
  noData:"No hay cuentas registradas.",
  editTitle:"Editar Cuenta",
  newTitle:"Nueva Cuenta",

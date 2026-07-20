@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { isLocale } from "@/lib/i18n";
 import { requireUser } from "@/lib/session";
+import { MAX_ACCOUNTS } from "@/lib/constants";
 import type { Locale } from "@/lib/i18n";
 
 const tagSchema = z.object({
@@ -138,6 +139,13 @@ export async function createFundedAccount(data: unknown) {
   const user = await requireUser();
   const parsed = fundedAccountSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
+
+  const { count } = await supabase
+    .from("FundedAccount")
+    .select("id", { count: "exact", head: true })
+    .eq("userId", user.userId);
+  if ((count ?? 0) >= MAX_ACCOUNTS) return { error: "limit" };
+
   const id = crypto.randomUUID();
   const { error } = await supabase.from("FundedAccount").insert({
     id, userId: user.userId, ...parsed.data,
@@ -145,6 +153,7 @@ export async function createFundedAccount(data: unknown) {
     updatedAt: new Date().toISOString(),
   });
   if (error) return { error: "Error al crear cuenta" };
+  revalidatePath("/accounts");
   revalidatePath("/settings");
   return { success: true, id };
 }
@@ -158,6 +167,7 @@ export async function updateFundedAccount(id: string, data: unknown) {
     .update({ ...parsed.data, updatedAt: new Date().toISOString() })
     .eq("id", id).eq("userId", user.userId);
   if (error) return { error: "Error al actualizar cuenta" };
+  revalidatePath("/accounts");
   revalidatePath("/settings");
   return { success: true };
 }
@@ -165,6 +175,7 @@ export async function updateFundedAccount(id: string, data: unknown) {
 export async function deleteFundedAccount(id: string) {
   const user = await requireUser();
   await supabase.from("FundedAccount").delete().eq("id", id).eq("userId", user.userId);
+  revalidatePath("/accounts");
   revalidatePath("/settings");
   return { success: true };
 }

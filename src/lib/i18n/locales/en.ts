@@ -374,6 +374,7 @@ export const en = {
  title:"Funded Accounts",
  subtitle:"Manage your personal and prop firm accounts",
  add:"+ Add Account",
+ limitReached:"Account limit reached (5 max)",
  noData:"No accounts added yet.",
  editTitle:"Edit Account",
  newTitle:"New Account",

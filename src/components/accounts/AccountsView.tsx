@@ -9,6 +9,7 @@ import {
   updateFundedAccount,
   deleteFundedAccount,
 } from "@/actions/settings.actions";
+import { MAX_ACCOUNTS } from "@/lib/constants";
 
 interface FundedAccount {
   id: string;
@@ -46,6 +47,7 @@ const ACCOUNT_STATUSES = ["active", "evaluation", "passed", "failed"] as const;
 
 export function AccountsView({ accounts }: { accounts: FundedAccount[] }) {
   const t = useTranslation();
+  const atLimit = accounts.length >= MAX_ACCOUNTS;
   const [isPending, startTransition] = useTransition();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<FundedAccount | null>(null);
@@ -110,7 +112,7 @@ export function AccountsView({ accounts }: { accounts: FundedAccount[] }) {
         ? await updateFundedAccount(editing.id, data)
         : await createFundedAccount(data);
       if ("error" in res) {
-        toast.error(t("settings.accounts.saveError"));
+        toast.error(res.error === "limit" ? t("settings.accounts.limitReached") : t("settings.accounts.saveError"));
       } else {
         toast.success(editing ? t("settings.accounts.updated") : t("settings.accounts.created"));
         resetForm();
@@ -146,10 +148,19 @@ export function AccountsView({ accounts }: { accounts: FundedAccount[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-fg-subtle">{t("settings.accounts.subtitle")}</p>
-        <button className={btnPrimary} onClick={() => { resetForm(); setShowForm(true); }}>
-          {t("settings.accounts.add")}
-        </button>
+        <div>
+          <p className="text-xs text-fg-subtle">{t("settings.accounts.subtitle")}</p>
+          <p className="text-xs text-fg-muted mt-0.5 font-mono">{accounts.length} / {MAX_ACCOUNTS}</p>
+        </div>
+        {atLimit ? (
+          <span className="text-xs text-amber-400 font-medium px-3 py-1.5 rounded-lg bg-amber-400/10 border border-amber-400/20">
+            {t("settings.accounts.limitReached")}
+          </span>
+        ) : (
+          <button className={btnPrimary} onClick={() => { resetForm(); setShowForm(true); }}>
+            {t("settings.accounts.add")}
+          </button>
+        )}
       </div>
 
       {showForm && (

@@ -376,6 +376,7 @@ export const pt: Dict = {
  title:"Contas Fondeadas",
  subtitle:"Gerencie suas contas pessoais e de prop firm",
  add:"+ Adicionar Conta",
+ limitReached:"Limite de contas atingido (máx. 5)",
  noData:"Nenhuma conta cadastrada.",
  editTitle:"Editar Conta",
  newTitle:"Nova Conta",
