@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./cosmic.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { getLocale } from "@/lib/i18n";
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('ui-theme');if(t==='cosmic')document.documentElement.classList.add('cosmic');}catch(e){}})()` }} />
         <meta name="theme-color" content="#07061a"/>
         <meta name="apple-mobile-web-app-capable" content="yes"/>
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>

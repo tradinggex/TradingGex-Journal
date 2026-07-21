@@ -8,6 +8,7 @@ import { logout } from "@/actions/auth";
 import { setSelectedAccount } from "@/actions/account.actions";
 import { useTranslation } from "@/lib/i18n/context";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { UIThemeSwitcher } from "@/components/layout/UIThemeSwitcher";
 import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2, CreditCard, ChevronDown, Wallet, Layers } from "lucide-react";
 
 interface Account {
@@ -61,7 +62,7 @@ function AccountSwitcher({ accounts, activeAccountId }: { accounts: Account[]; a
         <ChevronDown size={11} className={`shrink-0 text-fg-muted transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-1.5 w-52 bg-surface border border-[var(--border)] rounded-xl shadow-xl z-50 overflow-hidden py-1">
+        <div className="absolute top-full left-0 mt-1.5 w-52 bg-surface glass-dropdown rounded-xl shadow-xl z-50 overflow-hidden py-1">
           <button
             type="button"
             onClick={() => select(null)}
@@ -133,8 +134,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus,
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 h-16 z-50 bg-surface"
-        style={{ borderBottom: "1px solid var(--border)" }}
+        className="fixed top-0 left-0 right-0 h-16 z-50 aurora-nav"
       >
         <div className="h-full px-4 sm:px-6 flex items-center gap-3 sm:gap-6">
 
@@ -167,14 +167,11 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus,
                   className={cn(
                     "relative px-3.5 py-2 text-sm font-medium rounded-xl transition-all",
                     active
-                      ? "text-purple-500 dark:text-purple-400"
-                      : "text-fg-muted hover:text-foreground hover:bg-surface2"
+                      ? "text-purple-400 aurora-nav-active"
+                      : "text-fg-muted hover:text-foreground hover:bg-white/5"
                   )}
                 >
                   {label}
-                  {active && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-purple-500" />
-                  )}
                 </Link>
               );
             })}
@@ -200,6 +197,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus,
                 Pro
               </Link>
             )}
+            <UIThemeSwitcher />
             <ThemeToggle />
 
             {/* New Trade — hidden on smallest screens */}
@@ -270,7 +268,7 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus,
 
           {/* Drawer */}
           <div
-            className="relative flex flex-col w-72 max-w-[85vw] h-full bg-surface"
+            className="relative flex flex-col w-72 max-w-[85vw] h-full aurora-nav"
             style={{ borderRight: "1px solid var(--border)" }}
           >
             {/* Account switcher — mobile */}
@@ -292,8 +290,8 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus,
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
                       active
-                        ? "text-purple-400 bg-purple-500/10"
-                        : "text-fg-muted hover:text-foreground hover:bg-surface2"
+                        ? "text-purple-400 bg-purple-500/12 border border-purple-500/20"
+                        : "text-fg-muted hover:text-foreground hover:bg-white/5 border border-transparent"
                     )}
                   >
                     <Icon size={15} strokeWidth={active ? 2 : 1.75} className="shrink-0" />

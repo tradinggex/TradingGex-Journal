@@ -1,0 +1,195 @@
+/* ══════════════════════════════════════════════════════════════════════
+   COSMIC / SPACE THEME — overrides applied when <html class="cosmic">
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Color palette ──────────────────────────────────────────────────── */
+.cosmic.dark {
+  --color-background: #01000a;
+  --color-surface:    #060311;
+  --color-surface2:   #0a0618;
+  --color-surface3:   #100b22;
+  --color-foreground: #ece6ff;
+  --color-fg-muted:   #a296cc;
+  --color-fg-subtle:  #5e5485;
+  --border:       rgba(212, 175, 55, 0.16);
+  --card-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.12),
+    0 8px 40px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ── Deep space background — planets + nebula + star field ──────────── */
+.cosmic.dark body {
+  background:
+    /* Glowing planets (partially off-screen for realism) */
+    radial-gradient(circle 220px at -70px  -100px, rgba(212,175,55,0.30) 0%, rgba(212,175,55,0.06) 52%, transparent 68%),
+    radial-gradient(circle 160px at calc(100% + 55px) 25%, rgba(103,58,200,0.35) 0%, rgba(103,58,200,0.08) 52%, transparent 68%),
+    radial-gradient(circle 100px at calc(100% - 60px) calc(100% + 45px), rgba(56,189,248,0.28) 0%, rgba(56,189,248,0.06) 52%, transparent 68%),
+    /* Nebula gas clouds */
+    radial-gradient(ellipse 65% 48% at 18% 28%,  rgba(103,48,200,0.20) 0%, transparent 65%),
+    radial-gradient(ellipse 52% 40% at 80% 74%,  rgba(212,175,55,0.13) 0%, transparent 62%),
+    radial-gradient(ellipse 42% 32% at 62% 14%,  rgba(30,100,255,0.09) 0%, transparent 60%),
+    radial-gradient(ellipse 68% 52% at 32% 92%,  rgba(148,0,211,0.14) 0%, transparent 65%),
+    radial-gradient(ellipse 35% 28% at 92% 32%,  rgba(100,200,255,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 28% 22% at 50% 55%,  rgba(212,175,55,0.05) 0%, transparent 58%),
+    /* Star particles — tiny */
+    radial-gradient(circle at  8%  12%, rgba(255,255,255,0.90) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 14%  73%, rgba(255,255,255,0.65) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 19%  38%, rgba(255,245,200,0.75) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 25%  85%, rgba(255,255,255,0.55) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 31%  20%, rgba(200,220,255,0.70) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 37%  62%, rgba(255,255,255,0.60) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 43%  48%, rgba(255,255,255,0.80) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 50%  90%, rgba(255,240,180,0.65) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 56%  33%, rgba(255,255,255,0.70) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 62%  72%, rgba(200,210,255,0.55) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 68%  18%, rgba(255,255,255,0.75) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 74%  55%, rgba(255,255,255,0.65) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 80%  88%, rgba(255,255,255,0.50) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 86%  42%, rgba(200,220,255,0.70) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 92%  68%, rgba(255,255,255,0.60) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 97%  25%, rgba(255,240,200,0.75) 0.4px, transparent 0.4px),
+    radial-gradient(circle at  4%  55%, rgba(255,255,255,0.65) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 22%  62%, rgba(255,255,255,0.50) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 53%  5%,  rgba(255,250,220,0.70) 0.4px, transparent 0.4px),
+    radial-gradient(circle at 76%  78%, rgba(200,220,255,0.60) 0.4px, transparent 0.4px),
+    /* Star particles — medium with soft glow */
+    radial-gradient(circle at 11%  58%, rgba(255,255,255,0.85) 0.7px, rgba(255,255,255,0.12) 1.5px, transparent 2px),
+    radial-gradient(circle at 28%   5%, rgba(255,240,180,0.90) 0.7px, rgba(255,240,180,0.12) 1.5px, transparent 2px),
+    radial-gradient(circle at 46%  78%, rgba(255,255,255,0.80) 0.7px, rgba(255,255,255,0.10) 1.5px, transparent 2px),
+    radial-gradient(circle at 63%  95%, rgba(200,200,255,0.85) 0.7px, rgba(200,200,255,0.12) 1.5px, transparent 2px),
+    radial-gradient(circle at 79%  12%, rgba(255,255,255,0.90) 0.7px, rgba(255,255,255,0.10) 1.5px, transparent 2px),
+    radial-gradient(circle at 94%  82%, rgba(255,255,255,0.75) 0.7px, rgba(255,255,255,0.08) 1.5px, transparent 2px),
+    radial-gradient(circle at 40%  42%, rgba(212,175,55,0.80)  0.7px, rgba(212,175,55,0.10)  1.5px, transparent 2px),
+    /* Bright stars with corona glow */
+    radial-gradient(circle at  5%  82%, rgba(255,255,255,0.95) 1px, rgba(255,255,255,0.25) 3px, rgba(255,255,255,0.05) 6px, transparent 7px),
+    radial-gradient(circle at 34%  50%, rgba(255,235,150,0.95) 1px, rgba(255,235,150,0.20) 3px, rgba(255,235,150,0.04) 6px, transparent 7px),
+    radial-gradient(circle at 71%   8%, rgba(255,255,255,0.95) 1px, rgba(255,255,255,0.22) 3px, rgba(255,255,255,0.04) 6px, transparent 7px),
+    radial-gradient(circle at 88%  60%, rgba(200,210,255,0.90) 1px, rgba(200,210,255,0.18) 3px, rgba(200,210,255,0.04) 6px, transparent 7px),
+    radial-gradient(circle at 52%   3%, rgba(255,255,200,0.90) 1px, rgba(255,255,200,0.18) 3px, rgba(255,255,200,0.04) 6px, transparent 7px),
+    radial-gradient(circle at 17%  92%, rgba(212,175,55,0.90)  1px, rgba(212,175,55,0.18)  3px, rgba(212,175,55,0.04)  6px, transparent 7px),
+    /* Deep space void */
+    #01000a;
+  background-attachment: fixed;
+}
+
+/* Nebula shimmer animation */
+@keyframes cosmic-nebula {
+  0%, 100% { opacity: 0.90; }
+  50%       { opacity: 1.00; }
+}
+
+/* ── Frosted glass cards — darker, with gold border ─────────────────── */
+.cosmic.dark .card {
+  background: rgba(4, 2, 14, 0.84);
+  backdrop-filter: blur(20px) saturate(1.25);
+  -webkit-backdrop-filter: blur(20px) saturate(1.25);
+  border: 1px solid rgba(212, 175, 55, 0.16);
+  box-shadow: var(--card-shadow);
+}
+
+.cosmic.dark .card:hover {
+  border-color: rgba(212, 175, 55, 0.28);
+}
+
+/* ── Frosted glass topbar — deep void + gold line ───────────────────── */
+.cosmic.dark .aurora-nav {
+  background: rgba(2, 1, 10, 0.90) !important;
+  backdrop-filter: blur(28px) saturate(1.5);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.18) !important;
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* ── Stat card glow top-stripes — cosmic palette ────────────────────── */
+.cosmic.dark .card-glow-purple::before {
+  background: linear-gradient(90deg, transparent, rgba(148,80,255,0.65), rgba(180,120,255,0.90), rgba(148,80,255,0.65), transparent);
+}
+.cosmic.dark .card-glow-green::before {
+  background: linear-gradient(90deg, transparent, rgba(56,200,180,0.60), rgba(80,220,200,0.90), rgba(56,200,180,0.60), transparent);
+}
+.cosmic.dark .card-glow-red::before {
+  background: linear-gradient(90deg, transparent, rgba(220,50,80,0.60), rgba(240,80,110,0.90), rgba(220,50,80,0.60), transparent);
+}
+.cosmic.dark .card-glow-orange::before {
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.70), rgba(255,210,80,0.95), rgba(212,175,55,0.70), transparent);
+}
+
+/* ── Stat card outer glow shadows — cosmic palette ──────────────────── */
+.cosmic.dark .card-glow-purple {
+  box-shadow:
+    0 0 0 1px rgba(148, 80, 255, 0.20),
+    0 8px 40px rgba(0, 0, 0, 0.60),
+    0 0 60px rgba(148, 80, 255, 0.12);
+}
+.cosmic.dark .card-glow-green {
+  box-shadow:
+    0 0 0 1px rgba(56, 200, 180, 0.18),
+    0 8px 40px rgba(0, 0, 0, 0.60),
+    0 0 60px rgba(56, 200, 180, 0.09);
+}
+.cosmic.dark .card-glow-red {
+  box-shadow:
+    0 0 0 1px rgba(220, 50, 80, 0.20),
+    0 8px 40px rgba(0, 0, 0, 0.60),
+    0 0 60px rgba(220, 50, 80, 0.10);
+}
+.cosmic.dark .card-glow-orange {
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.22),
+    0 8px 40px rgba(0, 0, 0, 0.60),
+    0 0 60px rgba(212, 175, 55, 0.14);
+}
+
+/* ── Aurora gradient text → Cosmic gold-violet ──────────────────────── */
+.cosmic.dark .aurora-text {
+  background: linear-gradient(135deg, #a78bfa 0%, #D4AF37 55%, #FFD700 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Nav active underline — gold shimmer ────────────────────────────── */
+.cosmic.dark .aurora-nav-active::after {
+  background: linear-gradient(90deg, #7c3aed, #D4AF37, #FFD700, #D4AF37, #7c3aed);
+  background-size: 200%;
+  animation: aurora-shimmer 3s ease-in-out infinite;
+}
+
+/* ── Glass dropdown — void + gold ───────────────────────────────────── */
+.cosmic.dark .glass-dropdown {
+  background: rgba(3, 1, 12, 0.96) !important;
+  border: 1px solid rgba(212, 175, 55, 0.18) !important;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(212, 175, 55, 0.08);
+}
+
+/* ── Input focus glow — gold ────────────────────────────────────────── */
+.cosmic.dark input:focus,
+.cosmic.dark select:focus,
+.cosmic.dark textarea:focus {
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.16), 0 0 0 1px rgba(212, 175, 55, 0.38);
+  outline: none;
+}
+
+/* ── Scrollbar — gold tint ──────────────────────────────────────────── */
+.cosmic.dark ::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.24);
+}
+.cosmic.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.44);
+}
+
+/* ── Surface glass overrides ────────────────────────────────────────── */
+.cosmic.dark .bg-surface  { background: rgba(4, 2, 14, 0.80) !important; }
+.cosmic.dark .bg-surface2 { background: rgba(6, 3, 18, 0.72) !important; }
+.cosmic.dark .bg-surface3 { background: rgba(10, 6, 24, 0.65) !important; }
+
+/* ── Primary button — cosmic gold ──────────────────────────────────── */
+.cosmic.dark .btn-aurora {
+  background: linear-gradient(135deg, #7c3aed, #b8902a);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.25), 0 4px 12px rgba(0,0,0,0.4);
+  border: 1px solid rgba(212, 175, 55, 0.30);
+}
+.cosmic.dark .btn-aurora:hover {
+  box-shadow: 0 0 32px rgba(212, 175, 55, 0.40), 0 4px 16px rgba(0,0,0,0.5);
+}

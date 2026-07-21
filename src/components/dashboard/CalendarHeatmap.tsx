@@ -253,13 +253,12 @@ function toDateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function getMonday(d: Date): Date {
+function getSunday(d: Date): Date {
   const day = d.getDay(); // 0=Sun
-  const diff = day === 0 ? -6 : 1 - day; // shift to Mon
-  const mon = new Date(d);
-  mon.setDate(d.getDate() + diff);
-  mon.setHours(0, 0, 0, 0);
-  return mon;
+  const sun = new Date(d);
+  sun.setDate(d.getDate() - day); // 0 for Sun = no change, 1 for Mon = -1, etc.
+  sun.setHours(0, 0, 0, 0);
+  return sun;
 }
 
 // ── WeeklyView ─────────────────────────────────────────────────────────────
@@ -274,10 +273,10 @@ function WeeklyView({
 }) {
   const t = useTranslation();
   const today = useMemo(() => new Date(), []);
-  const [weekStart, setWeekStart] = useState(() => getMonday(today));
+  const [weekStart, setWeekStart] = useState(() => getSunday(today));
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const isCurrentWeek = toDateKey(weekStart) === toDateKey(getMonday(today));
+  const isCurrentWeek = toDateKey(weekStart) === toDateKey(getSunday(today));
 
   function prevWeek() {
     setWeekStart((w) => {
@@ -295,7 +294,7 @@ function WeeklyView({
     });
   }
   function goToCurrentWeek() {
-    setWeekStart(getMonday(today));
+    setWeekStart(getSunday(today));
   }
 
   // Build the 7 days Mon-Sun
