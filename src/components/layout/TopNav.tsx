@@ -8,7 +8,6 @@ import { logout } from "@/actions/auth";
 import { setSelectedAccount } from "@/actions/account.actions";
 import { useTranslation } from "@/lib/i18n/context";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { UIThemeSwitcher } from "@/components/layout/UIThemeSwitcher";
 import { LayoutDashboard, TrendingUp, BarChart3, BookOpen, Settings2, CreditCard, ChevronDown, Wallet, Layers } from "lucide-react";
 
 interface Account {
@@ -197,7 +196,6 @@ export function TopNav({ userEmail, userName, trialDaysLeft, subscriptionStatus,
                 Pro
               </Link>
             )}
-            <UIThemeSwitcher />
             <ThemeToggle />
 
             {/* New Trade — hidden on smallest screens */}
