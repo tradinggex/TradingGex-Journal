@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { login, type AuthState } from "@/actions/auth";
 import { useTranslation } from "@/lib/i18n/context";
 import { useSearchParams } from "next/navigation";
@@ -24,11 +25,16 @@ function LoginForm() {
   return (
     <div className="w-full max-w-sm">
       {/* Logo */}
-      <div className="text-center mb-8">
-        <div className="text-2xl font-black tracking-tight mb-1">
-          TradingG<span className="text-purple-500">ex</span>
-        </div>
-        <div className="text-xs text-fg-subtle tracking-widest uppercase">
+      <div className="flex flex-col items-center mb-8">
+        <Image
+          src="/icon.png"
+          alt="TradingGex"
+          width={160}
+          height={160}
+          className="drop-shadow-[0_0_32px_rgba(212,175,55,0.35)]"
+          priority
+        />
+        <div className="text-xs text-fg-subtle tracking-widest uppercase mt-2">
           {t("auth.subtitle")}
         </div>
       </div>
