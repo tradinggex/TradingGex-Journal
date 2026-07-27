@@ -27,7 +27,7 @@ function LoginForm() {
       <div className="flex flex-col items-center mb-8">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/icon.png"
+          src="/icon-512.png"
           alt="TradingGex"
           width={180}
           height={180}
